@@ -1,0 +1,5 @@
+# Review data never belongs in the repo
+*.json
+reviews/
+archive/
+CR_*.html

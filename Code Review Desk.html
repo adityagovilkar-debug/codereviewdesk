@@ -1,0 +1,2457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Code Review Desk</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f5bd3'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f3f4f7; --panel:#ffffff; --panel-2:#f8f9fb; --ink:#1b2130; --muted:#5e6778; --faint:#8a93a3;
+  --line:#dde1e8; --line-2:#e9ecf1; --accent:#2f5bd3; --accent-2:#e7eefc; --accent-ink:#fff;
+  --ok:#1b7a4a; --ok-bg:#e2f3e9; --bad:#b3261e; --bad-bg:#fbe8e6; --na:#5e6778; --na-bg:#eceef2;
+  --warn:#8a5a00; --warn-bg:#fff2d4; --shadow:0 1px 2px rgba(20,30,50,.06),0 4px 16px rgba(20,30,50,.05);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a; --panel:#181c24; --panel-2:#1d222c; --ink:#e6e9ef; --muted:#a0a8b8; --faint:#737c8d;
+    --line:#2b313d; --line-2:#242a35; --accent:#7ea2ff; --accent-2:#1f2a44; --accent-ink:#0d1220;
+    --ok:#5fd08f; --ok-bg:#16301f; --bad:#ff8a80; --bad-bg:#3a1c1a; --na:#a0a8b8; --na-bg:#262b35;
+    --warn:#f2c35b; --warn-bg:#352a12; --shadow:0 1px 2px rgba(0,0,0,.3);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a; --panel:#181c24; --panel-2:#1d222c; --ink:#e6e9ef; --muted:#a0a8b8; --faint:#737c8d;
+  --line:#2b313d; --line-2:#242a35; --accent:#7ea2ff; --accent-2:#1f2a44; --accent-ink:#0d1220;
+  --ok:#5fd08f; --ok-bg:#16301f; --bad:#ff8a80; --bad-bg:#3a1c1a; --na:#a0a8b8; --na-bg:#262b35;
+  --warn:#f2c35b; --warn-bg:#352a12; --shadow:0 1px 2px rgba(0,0,0,.3);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+.mono,code{font-family:"Cascadia Mono",Consolas,ui-monospace,monospace}
+a{color:var(--accent)}
+
+/* top bar */
+#top{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line)}
+.topin{max-width:1320px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;font-weight:650;cursor:pointer;background:none;border:0;padding:0}
+.brand .mk{width:26px;height:26px;border-radius:7px;background:var(--accent);display:grid;place-items:center}
+.brand .mk svg{width:16px;height:16px}
+.ctx{display:flex;align-items:center;gap:8px;min-width:0}
+.ctx .tk{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.tabs{display:flex;gap:2px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:2px}
+.tabs button{border:0;background:none;padding:5px 12px;border-radius:7px;cursor:pointer;color:var(--muted)}
+.tabs button[aria-current="true"]{background:var(--panel);color:var(--ink);box-shadow:var(--shadow);font-weight:600}
+.tabs button:disabled{opacity:.4;cursor:not-allowed}
+.sp{flex:1}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--panel);padding:7px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.sm{padding:4px 9px;font-size:13px}
+.btn.ghost{border-color:transparent;background:none;color:var(--muted)}
+.btn.block{width:100%}
+.icon{border:0;background:none;cursor:pointer;color:var(--faint);padding:2px 6px;border-radius:6px}
+.icon:hover{color:var(--bad);background:var(--bad-bg)}
+
+.pill{display:inline-block;font-size:11.5px;font-weight:650;letter-spacing:.03em;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.pill.draft{background:var(--na-bg);color:var(--na)}
+.pill.submitted{background:var(--warn-bg);color:var(--warn)}
+.pill.changes{background:var(--bad-bg);color:var(--bad)}
+.pill.approved{background:var(--ok-bg);color:var(--ok)}
+
+main{max-width:1320px;margin:0 auto;padding:20px 16px 80px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.rail{position:sticky;top:70px;display:flex;flex-direction:column;gap:12px}
+@media (max-width:960px){.layout{grid-template-columns:minmax(0,1fr)}.rail{position:static}}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 14px;font-size:16px;display:flex;align-items:center;gap:9px}
+.card h2 .step{width:22px;height:22px;border-radius:50%;background:var(--accent-2);color:var(--accent);font-size:12px;display:grid;place-items:center;flex:none}
+.card h2 .aside{margin-left:auto;font-weight:400;font-size:13px;color:var(--muted)}
+.muted{color:var(--muted)} .faint{color:var(--faint)}
+.small{font-size:12.5px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 14px}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld.wide{grid-column:1/-1}
+.fld>span{font-size:12.5px;color:var(--muted);font-weight:550}
+.fld small{color:var(--faint);font-size:12px}
+.req{color:var(--bad);font-style:normal}
+input[type=text],input[type=date],input[type=number],input[type=search],input:not([type]),select,textarea{
+  width:100%;border:1px solid var(--line);background:var(--panel-2);border-radius:8px;padding:7px 9px;min-width:0}
+textarea{resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+
+table.ed{width:100%;border-collapse:collapse}
+table.ed th{font-size:12px;color:var(--muted);font-weight:550;text-align:left;padding:0 6px 6px}
+table.ed td{padding:3px 4px;vertical-align:middle}
+table.ed td:last-child{width:34px;text-align:center}
+.tbl-wrap{overflow-x:auto}
+
+.banner{border-radius:10px;padding:12px 14px;border:1px solid;display:flex;gap:10px;align-items:flex-start}
+.banner>div>b:first-child{display:block;margin-bottom:2px}
+.banner.warn{background:var(--warn-bg);border-color:transparent;color:var(--ink)}
+.banner.bad{background:var(--bad-bg);border-color:transparent}
+.banner.ok{background:var(--ok-bg);border-color:transparent}
+.banner.info{background:var(--accent-2);border-color:transparent}
+.banner .bi{font-size:18px;line-height:1.1}
+
+/* checklist */
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.tools input[type=search]{max-width:260px}
+.tog{display:inline-flex;align-items:center;gap:6px;color:var(--muted);cursor:pointer;user-select:none}
+.sugline{margin:0 0 12px;font-size:13px}
+.sec{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.sec-h{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--panel-2);cursor:pointer;user-select:none}
+.sec-h h3{margin:0;font-size:14.5px}
+.sec-h .cnt{margin-left:auto;font-size:12.5px;color:var(--muted);white-space:nowrap}
+.sec-h .chev{transition:transform .15s;color:var(--faint)}
+.sec.closed .chev{transform:rotate(-90deg)}
+.sec.closed .sec-b{display:none}
+.filtering .sec.closed .sec-b{display:block}
+.sec-b{border-top:1px solid var(--line)}
+.badge{font-size:11px;font-weight:650;padding:1px 7px;border-radius:99px;background:var(--accent-2);color:var(--accent);white-space:nowrap}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.item{padding:9px 12px;border-top:1px solid var(--line-2)}
+.item:first-child{border-top:0}
+.item.on{background:color-mix(in srgb,var(--accent-2) 45%,transparent)}
+.item[hidden]{display:none}
+.item-top{display:flex;gap:9px;align-items:flex-start;cursor:pointer}
+.rv .item-top{cursor:default}
+.item-top input{margin-top:3px;flex:none}
+.item-top .num{flex:none;min-width:24px;text-align:right;font:12px/1.9 "Cascadia Mono",Consolas,monospace;color:var(--faint)}
+.item-top .txt{flex:1}
+.item-x{margin:8px 0 2px 57px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.item-x .cmt{flex:1;min-width:220px}
+.revnote{flex-basis:100%;font-size:13px;padding:7px 10px;border-radius:8px;background:var(--panel);border:1px dashed var(--line)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex:none}
+.seg button{border:0;background:var(--panel);padding:5px 10px;cursor:pointer;font-size:13px;color:var(--muted);border-left:1px solid var(--line)}
+.seg button:first-child{border-left:0}
+.seg button.ok[aria-pressed="true"]{background:var(--ok-bg);color:var(--ok);font-weight:650}
+.seg button.bad[aria-pressed="true"]{background:var(--bad-bg);color:var(--bad);font-weight:650}
+.seg button.na[aria-pressed="true"]{background:var(--na-bg);color:var(--ink);font-weight:650}
+.chip{display:inline-block;font-size:12px;font-weight:650;padding:1px 8px;border-radius:99px;white-space:nowrap}
+.chip.ok{background:var(--ok-bg);color:var(--ok)} .chip.bad{background:var(--bad-bg);color:var(--bad)}
+.chip.na{background:var(--na-bg);color:var(--na)} .chip.none{background:transparent;color:var(--faint);border:1px dashed var(--line)}
+.rv-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 2px 33px}
+@media (max-width:700px){.rv-grid{grid-template-columns:1fr;margin-left:0}.item-x{margin-left:0}}
+.rv-col{display:flex;flex-direction:column;gap:6px;align-items:flex-start;min-width:0}
+.rv-col .cmt{width:100%}
+.lbl{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:650}
+.cm{margin:0;font-size:13.5px;white-space:pre-wrap}
+.prev{font-size:12.5px;color:var(--muted);border-left:3px solid var(--line);padding-left:8px}
+.rv.st-N{box-shadow:inset 3px 0 0 var(--bad)}
+.rv.st-F{box-shadow:inset 3px 0 0 var(--ok)}
+.rv.st-NA{box-shadow:inset 3px 0 0 var(--na)}
+.filters{display:flex;gap:2px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:2px}
+.filters button{border:0;background:none;padding:4px 10px;border-radius:6px;cursor:pointer;color:var(--muted);font-size:13px}
+.filters button[aria-pressed="true"]{background:var(--panel);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
+
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px 16px;margin:0}
+.kv div{min-width:0}
+.kv dt{font-size:12px;color:var(--muted)}
+.kv dd{margin:0;font-weight:560;overflow-wrap:anywhere}
+.summary{white-space:pre-wrap;margin:12px 0 0;padding:10px 12px;background:var(--panel-2);border-radius:8px}
+table.ro{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.5px}
+table.ro th,table.ro td{border-bottom:1px solid var(--line-2);padding:5px 6px;text-align:left;vertical-align:top}
+table.ro th{font-size:12px;color:var(--muted);font-weight:550}
+
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media (max-width:560px){.verdict{grid-template-columns:1fr}}
+.vbtn{text-align:left;border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:11px 13px;cursor:pointer;font-weight:650}
+.vbtn small{display:block;font-weight:400;color:var(--muted);margin-top:2px}
+.vbtn.ok[aria-pressed="true"]{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.vbtn.bad[aria-pressed="true"]{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+
+/* rail */
+.rail .card{padding:14px}
+.rail h4{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
+.ready{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:5px;font-size:13px}
+.ready li{display:flex;gap:7px;align-items:flex-start}
+.ready li::before{content:"";flex:none;width:15px;height:15px;margin-top:2px;border-radius:50%;border:1.5px solid var(--faint)}
+.ready li.ok{color:var(--muted)}
+.ready li.ok::before{background:var(--ok);border-color:var(--ok);box-shadow:inset 0 0 0 2.5px var(--panel)}
+.ready li.soft::before{border-color:var(--warn);border-style:dashed}
+.bar{height:8px;border-radius:99px;background:var(--line-2);overflow:hidden;margin:4px 0 8px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.stack{display:flex;flex-direction:column;gap:7px}
+.secsum{list-style:none;margin:0;padding:0;font-size:13px}
+.secsum li{display:flex;justify-content:space-between;padding:2px 0;color:var(--muted)}
+.secsum li b{color:var(--ink);font-weight:600}
+
+/* home */
+.hero{padding:26px 0 18px}
+.hero h1{margin:0 0 6px;font-size:28px;letter-spacing:-.01em}
+.hero p{margin:0;color:var(--muted);max-width:720px;font-size:15px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+@media (max-width:760px){.choices{grid-template-columns:1fr}}
+.choice{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.choice h2{margin:0 !important}
+.choice p{margin:0 0 6px;color:var(--muted)}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:16px;width:100%;text-align:center;color:var(--muted);cursor:pointer;background:var(--panel-2)}
+body.dragging .drop,.drop:hover{border-color:var(--accent);color:var(--accent)}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;counter-reset:f}
+@media (max-width:860px){.flow{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.flow{grid-template-columns:1fr}}
+.flow div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13.5px}
+.flow div b{display:block;margin-bottom:3px}
+.flow div::before{counter-increment:f;content:counter(f);display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:11.5px;font-weight:700;margin-bottom:6px}
+.drafts{width:100%;border-collapse:collapse}
+.drafts td{padding:8px 6px;border-top:1px solid var(--line-2);vertical-align:middle}
+.drafts tr:first-child td{border-top:0}
+.drafts td:last-child{text-align:right;white-space:nowrap}
+h3.h{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin:26px 0 10px}
+
+/* report */
+.rp-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.paper{background:#fff;color:#1d2330;border-radius:6px;box-shadow:0 2px 20px rgba(0,0,0,.12);padding:28px 30px;overflow-x:auto}
+.archive{margin-bottom:14px}
+.archive ol{margin:6px 0 0;padding-left:20px}
+
+/* shared folder */
+.sdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px var(--ok-bg);flex:none;margin-right:7px}
+.sdot.big{width:11px;height:11px;box-shadow:0 0 0 4px var(--ok-bg);margin-right:4px}
+.spill .count{background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:0 6px;font-size:11px;font-weight:700;margin-left:6px;line-height:1.5}
+.warnbtn{background:var(--warn-bg);border-color:transparent;color:var(--warn);font-weight:600}
+.sbar{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:14px 18px}
+.sbar-main{display:flex;gap:10px;align-items:center;flex:1;min-width:220px}
+.sme{width:200px}
+.sbar-act{display:flex;gap:6px}
+.buckets{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:860px){.buckets{grid-template-columns:1fr}}
+.bucket{padding:14px 16px}
+.bucket h3{margin:0 0 2px;font-size:15px;display:flex;gap:8px;align-items:center}
+.bucket .badge.muted{background:var(--na-bg);color:var(--na)}
+.bucket .hint{margin:0 0 8px;font-size:12.5px;color:var(--muted)}
+.qlist{display:flex;flex-direction:column}
+.qrow{display:flex;justify-content:space-between;gap:12px;padding:8px 8px;border-top:1px solid var(--line-2);cursor:pointer;border-radius:6px}
+.qrow:first-child{border-top:0}
+.qrow:hover{background:var(--accent-2)}
+.qmain{min-width:0;overflow-wrap:anywhere}
+.qside{text-align:right;flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.allhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:26px 0 10px}
+.allhead h3{margin:0}
+.allhead input{max-width:300px}
+.connect{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.steps{margin:8px 0 10px;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.msgbox{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px}
+
+/* transports (reviewer) */
+.trlist{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.tritem{display:flex;gap:12px;padding:10px 12px;border-top:1px solid var(--line-2);align-items:flex-start}
+.tritem:first-child{border-top:0}
+.tritem.done{background:color-mix(in srgb,var(--ok-bg) 60%,transparent)}
+.trchk{padding-top:4px;cursor:pointer}
+.trchk input{width:18px;height:18px;cursor:pointer;accent-color:var(--ok)}
+.trmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.trhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.trno{font-weight:700;font-size:15px}
+.tritem.done .trno{color:var(--ok)}
+
+/* multi-value system fields */
+.tags{display:flex;flex-wrap:wrap;gap:5px;align-items:center;border:1px solid var(--line);background:var(--panel-2);border-radius:8px;padding:4px 6px;min-height:36px;cursor:text}
+.tags:focus-within{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.tag{display:inline-flex;align-items:center;background:var(--accent-2);color:var(--accent);border-radius:6px;padding:2px 0 2px 8px;font-size:13px;font-weight:600;white-space:nowrap}
+.tag-x{border:0;background:none;color:inherit;cursor:pointer;padding:0 6px;opacity:.55;font-size:11px}
+.tag-x:hover{opacity:1}
+.tags .tag-in{flex:1;min-width:110px;width:auto;border:0;background:transparent;padding:3px 4px}
+.tags .tag-in:focus{outline:none}
+
+/* checklist setup */
+.setup{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.tplstate{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.how{margin-top:14px;font-size:13.5px}
+.how summary{cursor:pointer;color:var(--accent)}
+.how p{margin:8px 0 0}
+.trow{display:grid;grid-template-columns:minmax(170px,250px) minmax(0,1fr) auto;gap:12px;align-items:start;padding:10px 0;border-top:1px solid var(--line-2)}
+.trow:first-child{border-top:0}
+@media (max-width:720px){.trow{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding-top:4px}
+.tchip{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:3px 10px;font-size:12.5px;cursor:pointer;color:var(--muted)}
+.tchip[aria-pressed="true"]{background:var(--accent-2);border-color:var(--accent);color:var(--accent);font-weight:600}
+.tchip[aria-pressed="true"]::before{content:"✓ "}
+.rowbtns{display:flex;gap:1px;flex:none}
+.icon.mv:hover{color:var(--accent);background:var(--accent-2)}
+.icon:disabled{opacity:.25;cursor:default;background:none !important;color:var(--faint) !important}
+.sec-h .sec-title{font-weight:650;flex:1;max-width:460px;background:transparent;border-color:transparent;padding:4px 8px}
+.sec-h .sec-title:hover{border-color:var(--line)}
+.sec-h .sec-title:focus{background:var(--panel)}
+.card h2 .aside .btn{margin-left:4px}
+.titem{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:8px;align-items:start;padding:7px 12px;border-top:1px solid var(--line-2)}
+.titem:first-child{border-top:0}
+.titem .num{font:12px/2.6 Consolas,monospace;color:var(--faint);text-align:right}
+.titem textarea{resize:none;overflow:hidden;min-height:34px;line-height:1.4}
+.titem.add{display:block;padding:9px 12px 9px 46px}
+.setupnote{font-size:13px;margin:10px 0 0}
+
+dialog{border:1px solid var(--line);border-radius:14px;padding:0;background:var(--panel);color:var(--ink);max-width:min(720px,calc(100vw - 32px));width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(10,14,22,.45)}
+.dlg-in{padding:20px 22px}
+.dlg-in h2{margin:0 0 8px;font-size:17px}
+.dlg-list{max-height:55vh;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:4px 12px;margin:12px 0}
+.dlg-list h4{margin:12px 0 4px;font-size:13px;color:var(--muted)}
+.pick{display:flex;gap:8px;padding:5px 0;align-items:flex-start;cursor:pointer;font-size:13.5px}
+.pick input{margin-top:3px}
+.pick .num{font:12px/1.8 Consolas,monospace;color:var(--faint);min-width:20px;text-align:right}
+.dlg-act{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.dlg-in code{background:var(--panel-2);padding:1px 5px;border-radius:4px;font-size:12.5px;overflow-wrap:anywhere}
+
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);opacity:0;transition:.2s;background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:9px;z-index:100;pointer-events:none;max-width:calc(100vw - 32px)}
+#toast.show{opacity:1;transform:translateX(-50%)}
+#toast.bad{background:var(--bad);color:#fff}
+
+@media print{
+  @page{size:A4 landscape;margin:10mm}
+  body{background:#fff}
+  #top,.rp-bar,.archive,#toast{display:none !important}
+  main{padding:0;max-width:none}
+  .paper{box-shadow:none;padding:0;border-radius:0;overflow:visible}
+}
+</style>
+<style id="rpcss"></style>
+</head>
+<body>
+<header id="top"></header>
+<main id="main"></main>
+<dialog id="dlg"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="fileIn" accept=".json,.html,.htm,application/json,text/html" hidden>
+
+<script type="application/json" id="crd-template">
+{
+ "name": "Code Review Checklist - RICEFW",
+ "version": "2026.1",
+ "systems": [
+  "H0x",
+  "H1x",
+  "H2x",
+  "H3x",
+  "H4x",
+  "H6x",
+  "HZx",
+  "GXx",
+  "BHx"
+ ],
+ "sections": [
+  {
+   "id": "GEN",
+   "title": "General ABAP",
+   "next": 26,
+   "items": [
+    {
+     "id": "GEN-01",
+     "text": "Unit Testing document is updated on Confluence."
+    },
+    {
+     "id": "GEN-02",
+     "text": "Production version of object is compared and adjusted (if required) before modifying any object."
+    },
+    {
+     "id": "GEN-03",
+     "text": "Object's source system is checked. Object should be modified in source system only."
+    },
+    {
+     "id": "GEN-04",
+     "text": "Existing TRs maintained in the Version Backup section for each object."
+    },
+    {
+     "id": "GEN-05",
+     "text": "MOLGA conditions are used for country specific development."
+    },
+    {
+     "id": "GEN-06",
+     "text": "Naming standards, appropriate message class / development class / transport naming convention / program header / modification history have been checked."
+    },
+    {
+     "id": "GEN-07",
+     "text": "Program documentation is maintained for any object modification. All changes are maintained with a search term so that the change can be tracked with the ticket no."
+    },
+    {
+     "id": "GEN-08",
+     "text": "Appropriate comments, logic and reasoning are mentioned for code which is commented out."
+    },
+    {
+     "id": "GEN-09",
+     "text": "Obsolete statements are not used: RANGE, INCLUDE STRUCTURE, TABLES (except for module pool), BEGIN .. OCCURS."
+    },
+    {
+     "id": "GEN-10",
+     "text": "Global variables are minimized by declaring local variables or by passing variables through parameters and arguments while creating internal subroutines."
+    },
+    {
+     "id": "GEN-11",
+     "text": "Remove dead code, perform Extended Checks / Code Inspector and do Pretty Print."
+    },
+    {
+     "id": "GEN-12",
+     "text": "Runtime analysis (SE30) and SQL Trace (ST05) have been done for complex reports to check the performance of the program and database time taken."
+    },
+    {
+     "id": "GEN-13",
+     "text": "Do not use nested IF..ELSEIF… instead use CASE..ENDCASE wherever applicable. When coding IF or CASE, testing conditions are nested so that the most frequently true conditions are processed first."
+    },
+    {
+     "id": "GEN-14",
+     "text": "Sort fields on the SORT statement are not left as default (i.e. SORT ITAB BY FLD1 instead of SORT ITAB). Sort the internal table before using the “BINARY SEARCH” feature."
+    },
+    {
+     "id": "GEN-15",
+     "text": "Use a field symbol when modifying data in an internal table instead of a work area. Do not declare field symbols with type ANY."
+    },
+    {
+     "id": "GEN-16",
+     "text": "Has the internal table used in “FOR ALL ENTRIES IN” been checked for emptiness?"
+    },
+    {
+     "id": "GEN-17",
+     "text": "Are all SELECTs coded outside LOOP - ENDLOOP?"
+    },
+    {
+     "id": "GEN-18",
+     "text": "DEQUEUE is issued on ENQUEUEd records/tables if you are in the middle of a transaction that does not end the LUW. (Locks are released automatically by LEAVE PROGRAM, LEAVE TO TRANSACTION, or A / X message types.)"
+    },
+    {
+     "id": "GEN-19",
+     "text": "Avoid hard coding."
+    },
+    {
+     "id": "GEN-20",
+     "text": "If new tables/reports are created as part of the development, the authorization group is assigned."
+    },
+    {
+     "id": "GEN-21",
+     "text": "When calling a class method, the object reference is checked (IF lo_obj_ref IS NOT INITIAL…)."
+    },
+    {
+     "id": "GEN-22",
+     "text": "TRY … ENDTRY block is used if the called method raises exceptions."
+    },
+    {
+     "id": "GEN-23",
+     "text": "A CATCH block is defined for each and every exception defined for that method."
+    },
+    {
+     "id": "GEN-24",
+     "text": "Method get_text() is called to capture the error message of the raised exception and it is reported properly."
+    },
+    {
+     "id": "GEN-25",
+     "text": "Methods are not called without handling their exceptions."
+    }
+   ]
+  },
+  {
+   "id": "DAT",
+   "title": "Data Access and HR related Checks",
+   "next": 12,
+   "items": [
+    {
+     "id": "DAT-01",
+     "text": "Use SAP standard function modules wherever applicable, e.g. “HR_READ_INFOTYPE”, “HR_INFOTYPE_OPERATION”."
+    },
+    {
+     "id": "DAT-02",
+     "text": "Use standard HR logical databases like PNP, PCH wherever applicable."
+    },
+    {
+     "id": "DAT-03",
+     "text": "Authorization is checked when reading infotype data."
+    },
+    {
+     "id": "DAT-04",
+     "text": "No SELECT statement within a GET event."
+    },
+    {
+     "id": "DAT-05",
+     "text": "SELECT SINGLE is used only when all primary key fields are in the WHERE clause, otherwise SELECT … UP TO 1 ROWS."
+    },
+    {
+     "id": "DAT-06",
+     "text": "No nested SELECT. Use INNER JOIN and/or FOR ALL ENTRIES wherever applicable, check the driver table has data, retrieve all key fields and remove duplicates."
+    },
+    {
+     "id": "DAT-07",
+     "text": "Use SELECT … INTO TABLE instead of INTO CORRESPONDING FIELDS OF."
+    },
+    {
+     "id": "DAT-08",
+     "text": "When processing internal tables, the work area is cleared before it is filled, e.g. in a loop (LOOP AT …, SELECT … ENDSELECT), in particular with MOVE-CORRESPONDING or INTO CORRESPONDING FIELDS OF."
+    },
+    {
+     "id": "DAT-09",
+     "text": "Use a field symbol when modifying data in an internal table instead of a work area."
+    },
+    {
+     "id": "DAT-10",
+     "text": "Language key is passed when reading text descriptions. When displaying amount fields, the currency field is aligned."
+    },
+    {
+     "id": "DAT-11",
+     "text": "Data is not retrieved using non-primary-key fields — use the primary key or a secondary index, following the order of the key/index fields in the WHERE clause."
+    }
+   ]
+  },
+  {
+   "id": "REP",
+   "title": "Report Standard",
+   "next": 5,
+   "items": [
+    {
+     "id": "REP-01",
+     "text": "Error handling is done properly — instead of an error message, an information message and “LEAVE LIST-PROCESSING” can be used to return to the selection screen."
+    },
+    {
+     "id": "REP-02",
+     "text": "For ALV reports the field catalog is built from dictionary properties rather than hard-coded field names. If hard coding is required for text, a text element/message is used (never a constant) so it can be translated."
+    },
+    {
+     "id": "REP-03",
+     "text": "ALV class approach is used rather than the function module approach."
+    },
+    {
+     "id": "REP-04",
+     "text": "If the report can run in background, error/abend messages are replaced by information/warning/success messages so the job is not shown as cancelled to BASIS. Ground rule: no hard error message in background processing."
+    }
+   ]
+  },
+  {
+   "id": "ONL",
+   "title": "Online Standard",
+   "next": 7,
+   "items": [
+    {
+     "id": "ONL-01",
+     "text": "The field with “OK” format is defined as OK_CODE."
+    },
+    {
+     "id": "ONL-02",
+     "text": "When handling a lock entry failure, an error message (type E) is raised to prevent the user from leaving the screen."
+    },
+    {
+     "id": "ONL-03",
+     "text": "AT USER-COMMAND with a dialog status is used instead of AT PFnn in the program."
+    },
+    {
+     "id": "ONL-04",
+     "text": "Flag variables used to set screen properties / program logic are not changed locally — they are passed by value to subroutines and documented."
+    },
+    {
+     "id": "ONL-05",
+     "text": "No error message in PBO."
+    },
+    {
+     "id": "ONL-06",
+     "text": "Basic buttons like “CANCEL”, “BACK”, “EXIT” always work by default."
+    }
+   ]
+  },
+  {
+   "id": "BAT",
+   "title": "Batch Program / Interface Standard",
+   "next": 11,
+   "items": [
+    {
+     "id": "BAT-01",
+     "text": "Function module AUTHORITY_CHECK_DATASET is called before opening a file to check the user's authorization for OPEN / READ / TRANSFER / DELETE DATASET."
+    },
+    {
+     "id": "BAT-02",
+     "text": "The dataset is OPENed before read/write operations and always explicitly CLOSEd when file processing is finished."
+    },
+    {
+     "id": "BAT-03",
+     "text": "COMMIT WORK is used for database updates, and ROLLBACK wherever applicable."
+    },
+    {
+     "id": "BAT-04",
+     "text": "Tables are locked during database updates and unlocked once the update is done."
+    },
+    {
+     "id": "BAT-05",
+     "text": "“Success” messages (type S, written to the job log in batch) are used generously to provide an audit trail of the program’s execution."
+    },
+    {
+     "id": "BAT-06",
+     "text": "For outbound IDocs, non-character values passed to the IDoc are CONDENSEd in the target field."
+    },
+    {
+     "id": "BAT-07",
+     "text": "SY-SUBRC is not checked after CALL TRANSACTION — the BDC message return table is checked instead."
+    },
+    {
+     "id": "BAT-08",
+     "text": "When using BAPIs to create/change database entries, the RETURN table is checked instead of SY-SUBRC, and BAPI_TRANSACTION_COMMIT is used to commit."
+    },
+    {
+     "id": "BAT-09",
+     "text": "The CALL TRANSACTION mode is declared as a variable, not a constant, so it can be changed while debugging."
+    },
+    {
+     "id": "BAT-10",
+     "text": "For BDC, “WRITE TO” is used to apply the logon user’s defaults for date/currency/decimal fields, and conversion exit ALPHA output is used where internal/external formats differ."
+    }
+   ]
+  },
+  {
+   "id": "FRM",
+   "title": "SAPscript / Smart Forms",
+   "next": 11,
+   "items": [
+    {
+     "id": "FRM-01",
+     "text": "Nice to have: program header flower box in a window of the SAPscript, and in the initialization section for Smart Forms. If an external subroutine pool is used, its header flower box must be filled."
+    },
+    {
+     "id": "FRM-02",
+     "text": "Smart Forms: text modules are used instead of hard coding."
+    },
+    {
+     "id": "FRM-03",
+     "text": "Standard texts are used where the text changes from time to time (greetings, footer etc.)."
+    },
+    {
+     "id": "FRM-04",
+     "text": "No spacing is used for alignment — paragraph formats and tabs are used."
+    },
+    {
+     "id": "FRM-05",
+     "text": "Currency fields are formatted when displaying amounts in the layout."
+    },
+    {
+     "id": "FRM-06",
+     "text": "Language is not SY-LANGU in most cases — rather NAST-LANGU / the recipient’s language."
+    },
+    {
+     "id": "FRM-07",
+     "text": "A printout of the layout was taken in the paper size specified in the form header to check accuracy."
+    },
+    {
+     "id": "FRM-08",
+     "text": "Relevant standard texts for SAPscript are transferred to a correction request (standard program RSTXTRAN)."
+    },
+    {
+     "id": "FRM-09",
+     "text": "PROTECT … ENDPROTECT is used to avoid unwanted breaking of text across pages."
+    },
+    {
+     "id": "FRM-10",
+     "text": "Form has been tested with the appropriate printer and device type."
+    }
+   ]
+  }
+ ],
+ "objectTypes": [
+  {
+   "id": "REPORT",
+   "label": "Report / ALV program",
+   "secs": [
+    "GEN",
+    "DAT",
+    "REP"
+   ]
+  },
+  {
+   "id": "CLASS",
+   "label": "Class / OData (DPC_EXT, MPC_EXT)",
+   "secs": [
+    "GEN",
+    "DAT"
+   ]
+  },
+  {
+   "id": "FM",
+   "label": "Function module / BAPI",
+   "secs": [
+    "GEN",
+    "DAT"
+   ]
+  },
+  {
+   "id": "ENH",
+   "label": "Enhancement / BAdI / user exit",
+   "secs": [
+    "GEN",
+    "DAT"
+   ]
+  },
+  {
+   "id": "DIALOG",
+   "label": "Module pool / dialog screen",
+   "secs": [
+    "GEN",
+    "DAT",
+    "ONL"
+   ]
+  },
+  {
+   "id": "BATCH",
+   "label": "Batch job / interface / IDoc / BDC",
+   "secs": [
+    "GEN",
+    "DAT",
+    "BAT"
+   ]
+  },
+  {
+   "id": "FORM",
+   "label": "SAPscript / Smart Form / Adobe form",
+   "secs": [
+    "GEN",
+    "FRM"
+   ]
+  },
+  {
+   "id": "DDIC",
+   "label": "Table / view / data dictionary",
+   "secs": [
+    "GEN"
+   ]
+  },
+  {
+   "id": "OTHER",
+   "label": "Other",
+   "secs": [
+    "GEN"
+   ]
+  }
+ ]
+}
+</script>
+<script>
+'use strict';
+/* Checklist template: read from the JSON block <script id="crd-template"> above.
+   Edit it in the app via "Checklist setup", then "Download tool with this checklist". */
+const BUILTIN_TPL = JSON.parse(document.getElementById('crd-template').textContent);
+/* Pristine copy of this page, captured before anything renders, for "Download tool with this checklist". */
+const BASE_HTML = '<!doctype html>\n' + document.documentElement.outerHTML;
+const STATUS = {
+  F:  { label: 'Followed',       short: 'Followed',     code: '1-Followed',       cls: 'ok', mark: '✔', wiki: '(/)' },
+  N:  { label: 'Not followed',   short: 'Not followed', code: '0-Not followed',   cls: 'bad', mark: '✖', wiki: '(x)' },
+  NA: { label: 'Not applicable', short: 'N/A',          code: '2-Not applicable', cls: 'na', mark: '–', wiki: '(i)' },
+};
+const MODULES = ['PA', 'OM', 'PY', 'PT', 'PD', 'PB', 'TM', 'ESS/MSS', 'CATS', 'ECP', 'FI', 'CO', 'MM', 'SD', 'Cross-module'];
+const STAGES = {
+  draft:     { label: 'Draft',             stamp: 'DRAFT' },
+  submitted: { label: 'In review',         stamp: 'IN REVIEW' },
+  changes:   { label: 'Changes requested', stamp: 'CHANGES REQUESTED' },
+  approved:  { label: 'Approved',          stamp: 'APPROVED' },
+};
+
+/* ============================================================ helpers */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const nowIso = () => new Date().toISOString();
+const todayLocal = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const fmtDate = iso => iso ? iso.slice(0, 10).split('-').reverse().join('.') : '';
+const fmtWhen = iso => iso ? new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const splitList = s => String(s || '').split(/[\s,;]+/).map(x => x.trim()).filter(Boolean);
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('crd.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('crd.' + k, JSON.stringify(v)); } catch { /* storage unavailable */ } },
+  del(k) { try { localStorage.removeItem('crd.' + k); } catch { /* ignore */ } },
+  keys(prefix) { try { return Object.keys(localStorage).filter(k => k.startsWith('crd.' + prefix)).map(k => k.slice(4)); } catch { return []; } },
+};
+
+function getPath(o, p) { return p.split('.').reduce((a, k) => a == null ? a : a[k], o); }
+function setPath(o, p, v) {
+  const ks = p.split('.'); let a = o;
+  for (let i = 0; i < ks.length - 1; i++) { if (a[ks[i]] == null) a[ks[i]] = {}; a = a[ks[i]]; }
+  a[ks.at(-1)] = v;
+}
+
+/* Tamper-evidence fingerprint (not a cryptographic signature). */
+function hash(str) {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) { const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
+}
+function stable(v) {
+  if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+  if (v && typeof v === 'object') return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}';
+  return JSON.stringify(v === undefined ? null : v);
+}
+const isThisRoundRevAdd = (d, it) => it && it.by === 'rev' && it.addedRound === d.round;
+function devSealOf(d) {
+  const items = {};
+  for (const [id, it] of Object.entries(d.items)) if (it.sel && !isThisRoundRevAdd(d, it)) items[id] = { dev: it.dev, reply: it.reply || '' };
+  return hash(stable({
+    h: d.header, o: d.objects, b: d.backupOn ? d.backup : [], r: d.round, p: d.pastRounds,
+    c: d.checklist.filter(x => !isThisRoundRevAdd(d, d.items[x.id])).map(x => [x.id, x.text]), i: items,
+    ...(d.schema >= 2 ? { t: trsOf(d).map(t => [t.tr, t.system, t.note]) } : {}),
+  }));
+}
+function revSealOf(d) {
+  const items = {};
+  for (const [id, it] of Object.entries(d.items)) if (it.sel) items[id] = it.rev;
+  return hash(stable({ dev: d.seals.dev, rv: d.review, i: items, r: d.round, ...(d.schema >= 2 ? { tc: trsOf(d).map(t => [!!t.checked, t.revNote]) } : {}) }));
+}
+
+/* ============================================================ checklist template */
+const tplHash = t => hash(stable({ n: t.name, v: t.version, sy: t.systems, s: t.sections, o: t.objectTypes }));
+const BUILTIN_HASH = tplHash(BUILTIN_TPL);
+function normalizeTpl(t) {
+  const out = {
+    name: String(t?.name || 'Code Review Checklist'), version: String(t?.version || '1'),
+    systems: Array.isArray(t?.systems) ? t.systems.map(String) : [],
+    sections: (t?.sections || []).map(s => ({
+      id: String(s.id), title: String(s.title ?? ''),
+      next: +s.next || (s.items?.length || 0) + 1,
+      items: (s.items || []).map(i => ({ id: String(i.id), text: String(i.text ?? '') })),
+    })),
+    objectTypes: (t?.objectTypes || []).map(o => ({ id: String(o.id), label: String(o.label ?? ''), secs: (o.secs || []).map(String) })),
+  };
+  for (const s of out.sections) {
+    const maxN = Math.max(0, ...s.items.map(i => +String(i.id).split('-').pop() || 0));
+    s.next = Math.max(s.next, maxN + 1);
+  }
+  return out;
+}
+/* BASE is the checklist everyone starts from: the one built into this file, or the shared folder's checklist.json once connected.
+   Edits live in this browser (crd.template, tagged with the BASE they were made against) until published or baked into a copy of the tool. */
+let BASE = { tpl: normalizeTpl(BUILTIN_TPL), hash: BUILTIN_HASH, source: 'builtin', mod: 0 };
+let TPL = (() => {
+  const saved = store.get('template');
+  if (!saved?.tpl) return structuredClone(BASE.tpl);
+  const t = normalizeTpl(saved.tpl);
+  if (tplHash(t) === BUILTIN_HASH) { store.del('template'); return structuredClone(BASE.tpl); }
+  return t;
+})();
+const tplIsCustom = () => tplHash(TPL) !== BASE.hash;
+const tplBasedOnOld = () => { const s = store.get('template'); return BASE.source === 'builtin' && tplIsCustom() && s?.basedOn && s.basedOn !== BUILTIN_HASH; };
+let tplSaveT;
+function saveTpl() {
+  clearTimeout(tplSaveT);
+  tplSaveT = setTimeout(() => {
+    if (tplIsCustom()) store.set('template', { tpl: TPL, basedOn: store.get('template')?.basedOn || BASE.hash, savedAt: nowIso() });
+    else store.del('template');
+    const st = $('#tplState'); if (st) st.innerHTML = tplStateHtml();
+    const ac = $('#tplActions'); if (ac) ac.innerHTML = tplActionsHtml();
+  }, 250);
+}
+/* Switch BASE to the shared checklist. Local edits survive only if they were made against this exact shared version. */
+function adoptSharedTpl(raw, mod) {
+  const t = normalizeTpl(raw), h = tplHash(t);
+  BASE = { tpl: t, hash: h, source: 'shared', mod };
+  const draft = store.get('template');
+  const draftHash = draft?.tpl ? tplHash(normalizeTpl(draft.tpl)) : '';
+  if (draft?.tpl && draft.basedOn === h && draftHash !== h) { TPL = normalizeTpl(draft.tpl); return; }
+  if (draft?.tpl && draftHash !== h && draftHash !== BUILTIN_HASH) store.set('template.stale', draft);
+  store.del('template');
+  TPL = structuredClone(t);
+}
+const typeLabelOf = o => TPL.objectTypes.find(t => t.id === o.type)?.label || o.typeLabel || '';
+function tplSections() {
+  return TPL.sections.map(s => ({
+    id: s.id, title: s.title.trim() || 'Untitled section',
+    items: s.items.filter(i => i.text.trim()).map((i, k) => ({ id: i.id, text: i.text.trim(), n: k + 1 })),
+  }));
+}
+function newSectionId(title) {
+  const base = (String(title).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3) || 'SEC');
+  const used = new Set([...TPL.sections.map(s => s.id), ...BUILTIN_TPL.sections.map(s => s.id)]);
+  if (!used.has(base)) return base;
+  for (let k = 2; ; k++) if (!used.has(base + k)) return base + k;
+}
+
+/* ============================================================ model */
+let doc = null;
+let view = 'home';
+const ui = { filter: '', selOnly: false, collapsed: {}, revFilter: 'all', tplCollapsed: {}, sharedQ: '', sharedStage: 'all' };
+
+function newDoc() {
+  const me = store.get('me', {});
+  return {
+    app: 'code-review-desk', schema: 2, id: uid(),
+    template: { name: TPL.name, version: TPL.version },
+    stage: 'draft', round: 1, createdAt: nowIso(), updatedAt: nowIso(),
+    header: {
+      ticket: '', module: me.module || '', title: '', summary: '',
+      devId: me.devId || '', devName: me.devName || '', created: todayLocal(),
+      devSystem: me.devSystem || '', importSystem: me.importSystem || '', transports: '',
+    },
+    objects: [{ name: '', type: '', note: '' }],
+    transports: [newTr()],
+    assignee: { id: '', name: '' },
+    backupOn: false, backup: [],
+    items: {}, checklist: [],
+    review: { revId: '', revName: '', date: '', effort: '', verdict: '', comment: '' },
+    history: [], pastRounds: [], seals: { dev: '', rev: '' },
+  };
+}
+function migrate(d) {
+  const base = newDoc();
+  const out = { ...base, ...d };
+  out.header = { ...base.header, ...(d.header || {}) };
+  out.review = { ...base.review, ...(d.review || {}) };
+  out.seals = { ...base.seals, ...(d.seals || {}) };
+  out.assignee = { ...base.assignee, ...(d.assignee || {}) };
+  out.template = d.template || base.template;
+  for (const k of ['objects', 'backup', 'checklist', 'history', 'pastRounds']) if (!Array.isArray(out[k])) out[k] = [];
+  if (!out.objects.length) out.objects.push({ name: '', type: '', note: '' });
+  out.schema = +d.schema || 1;
+  /* Schema 1 kept transports as a comma-separated header string; header.transports is left untouched so old fingerprints still match. */
+  out.transports = (Array.isArray(d.transports) ? d.transports : splitList(out.header.transports).map(tr => ({ tr, system: splitList(out.header.devSystem)[0] || '' })))
+    .map(t => ({ ...newTr(), ...t, checked: !!t.checked }));
+  if (!out.transports.length) out.transports.push(newTr());
+  out.items = out.items || {};
+  for (const it of Object.values(out.items)) {
+    it.dev = { s: '', c: '', ...(it.dev || {}) };
+    it.rev = { s: '', c: '', ...(it.rev || {}) };
+    it.reply = it.reply || '';
+    it.by = it.by || 'dev';
+  }
+  return out;
+}
+function newTr() { return { tr: '', system: '', note: '', checked: false, revNote: '' }; }
+const trsOf = d => (d.transports || []).filter(t => t.tr.trim());
+/* Before a developer save: drop empty rows, tidy TR numbers, default the source system to the first development system. */
+function tidyTransports(d) {
+  const src = splitList(d.header.devSystem)[0] || '';
+  d.transports = d.transports.filter(t => t.tr.trim() || t.note.trim()).map(t => ({ ...t, tr: t.tr.trim().toUpperCase(), system: t.system.trim() || src }));
+  if (d.schema < 2) { d.schema = 2; d.header.transports = ''; }
+}
+const ensureItem = id => (doc.items[id] ||= { sel: false, by: 'dev', dev: { s: '', c: '' }, rev: { s: '', c: '' }, reply: '' });
+
+/* Which checks a review can show.
+   Draft: this browser's checklist wins; ticked checks that have since been removed from it survive from the file's snapshot.
+   After submission: the file's snapshot wins (so the reviewer sees exactly what was sent, whatever checklist their copy has),
+   followed by this checklist's remaining checks (for "add a check the developer missed"). */
+function sectionsFor(d) {
+  const tpl = tplSections();
+  const snap = d?.checklist || [];
+  if (!d || d.stage === 'draft') {
+    for (const c of snap) {
+      if (tpl.some(s => s.items.some(i => i.id === c.id))) continue;
+      let s = tpl.find(x => x.id === c.sec);
+      if (!s) { s = { id: c.sec, title: c.secTitle || c.sec, items: [] }; tpl.push(s); }
+      s.items.push({ id: c.id, text: c.text, n: s.items.length + 1 });
+    }
+    return tpl;
+  }
+  const secs = [];
+  for (const c of snap) {
+    let s = secs.find(x => x.id === c.sec);
+    if (!s) { s = { id: c.sec, title: c.secTitle || c.sec, items: [] }; secs.push(s); }
+    s.items.push({ id: c.id, text: c.text, n: c.n });
+  }
+  const have = new Set(snap.map(c => c.id));
+  for (const t of tpl) {
+    const extra = t.items.filter(i => !have.has(i.id));
+    if (!extra.length) continue;
+    let s = secs.find(x => x.id === t.id);
+    if (!s) { s = { id: t.id, title: t.title, items: [] }; secs.push(s); }
+    s.items.push(...extra);
+  }
+  return secs;
+}
+function selectedSections(d) {
+  return sectionsFor(d).map(s => ({ ...s, items: s.items.filter(i => d.items[i.id]?.sel) })).filter(s => s.items.length);
+}
+function snapshot(d) {
+  d.checklist = selectedSections(d).flatMap(s => s.items.map(i => ({ id: i.id, sec: s.id, secTitle: s.title, n: i.n, text: i.text })));
+}
+/* Developer-side only: record type labels so a reviewer whose checklist lacks a type still sees its name. */
+function stampTypeLabels(d) { d.objects.forEach(o => { o.typeLabel = typeLabelOf(o); }); }
+const selItems = d => selectedSections(d).flatMap(s => s.items.map(i => [i.id, d.items[i.id]]));
+const suggestedSecs = d => new Set(d.objects.flatMap(o => TPL.objectTypes.find(t => t.id === o.type)?.secs || []));
+const who = (id, name) => [id, name ? `(${name})` : ''].filter(Boolean).join(' ');
+const devWho = d => who(d.header.devId, d.header.devName) || 'Developer';
+const revWho = d => who(d.review.revId, d.review.revName) || 'Reviewer';
+const safeName = s => String(s || '').trim().replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '') || 'untitled';
+const fileName = (d, suffix, ext = 'json') => `CR_${safeName(d.header.ticket)}_R${d.round}_${suffix}.${ext}`;
+function totalEffort(d) {
+  const n = [...d.pastRounds.map(r => r.review?.effort), d.review.effort].map(x => parseFloat(x)).filter(x => !isNaN(x));
+  return n.length ? +n.reduce((a, b) => a + b, 0).toFixed(2) : '';
+}
+function tabsFor(d) {
+  return { dev: d.stage !== 'approved', rev: d.stage === 'submitted', report: true };
+}
+
+/* ============================================================ persistence */
+let saveT;
+function saveLocal(now) {
+  clearTimeout(saveT);
+  const go = () => { if (doc) store.set('draft.' + doc.id, doc); };
+  now ? go() : (saveT = setTimeout(go, 300));
+}
+function rememberDev() {
+  const h = doc.header;
+  store.set('me', { ...store.get('me', {}), devId: h.devId, devName: h.devName, module: h.module, devSystem: h.devSystem, importSystem: h.importSystem });
+}
+function rememberRev() {
+  store.set('rev', { revId: doc.review.revId, revName: doc.review.revName });
+}
+
+async function download(name, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  if (window.showSaveFilePicker) {
+    try {
+      const ext = name.split('.').pop();
+      const h = await window.showSaveFilePicker({ suggestedName: name, types: [{ description: ext.toUpperCase() + ' file', accept: { [mime]: ['.' + ext] } }] });
+      const w = await h.createWritable(); await w.write(blob); await w.close();
+      return true;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return false;
+      /* fall through to a plain download */
+    }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  return true;
+}
+
+async function loadFile(file) {
+  if (!file) return;
+  let data;
+  try {
+    const text = await file.text();
+    if (/\.html?$/i.test(file.name) || text.trimStart().startsWith('<')) {
+      const m = text.match(/<script type="application\/json" id="crd-data">([\s\S]*?)<\/script>/);
+      const t = text.match(/<script type="application\/json" id="crd-template">([\s\S]*?)<\/script>/);
+      if (m) data = JSON.parse(m[1]);
+      else if (t) data = { app: 'code-review-desk-checklist', tpl: JSON.parse(t[1]) };
+      else throw new Error('no data');
+    } else data = JSON.parse(text);
+    if (data.app !== 'code-review-desk' && data.app !== 'code-review-desk-checklist') throw new Error('wrong app');
+  } catch {
+    toast(`“${file.name}” isn’t a Code Review Desk file.`, true);
+    return;
+  }
+  if (data.app === 'code-review-desk-checklist') return importTpl(data.tpl, file.name);
+  openDocData(data);
+}
+function openDocData(data) {
+  doc = migrate(data);
+  if (doc.stage === 'submitted' && !doc.review.revId) {
+    const r = store.get('rev', {});
+    doc.review.revId = r.revId || ''; doc.review.revName = r.revName || '';
+  }
+  ui.filter = ''; ui.revFilter = 'all'; ui.collapsed = {};
+  view = { draft: 'dev', submitted: 'rev', changes: 'dev', approved: 'report' }[doc.stage] || 'dev';
+  saveLocal(true);
+  render();
+  window.scrollTo(0, 0);
+  toast(`Opened ${doc.header.ticket || 'review'} — ${STAGES[doc.stage].label}`);
+}
+
+/* ============================================================ shared folder
+   A Teams channel / SharePoint library synced to this PC by OneDrive. Layout inside the chosen folder:
+     checklist.json   the team checklist (published from Checklist setup)
+     reviews/*.json   one file per review, updated in place
+     archive/*.html   archive copy of every approved review */
+const REVIEWS_DIR = 'reviews', ARCHIVE_DIR = 'archive', CHECKLIST_FILE = 'checklist.json';
+const idb = {
+  db: null,
+  open() {
+    return this.db ||= new Promise((res, rej) => {
+      const r = indexedDB.open('code-review-desk', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+  },
+  async run(mode, fn) {
+    try {
+      const db = await this.open();
+      return await new Promise((res, rej) => { const t = db.transaction('kv', mode); const q = fn(t.objectStore('kv')); t.oncomplete = () => res(q?.result); t.onerror = () => rej(t.error); });
+    } catch { return undefined; }
+  },
+  get(k) { return this.run('readonly', st => st.get(k)); },
+  set(k, v) { return this.run('readwrite', st => st.put(v, k)); },
+  del(k) { return this.run('readwrite', st => st.delete(k)); },
+};
+/* status: off | unsupported | needs-permission | missing | connected */
+const shared = { handle: null, name: '', status: 'off', reviews: [], scannedAt: '', scanning: false, error: '', tplExists: null, tplMeta: {}, newerTpl: false };
+const sharedOn = () => shared.status === 'connected';
+const myId = () => String(store.get('whoami') ?? store.get('me', {}).devId ?? store.get('rev', {}).revId ?? '').trim().toUpperCase();
+const sameId = (a, b) => !!a && !!b && String(a).trim().toUpperCase() === String(b).trim().toUpperCase();
+
+async function sharedInit() {
+  if (!window.showDirectoryPicker) { shared.status = 'unsupported'; return; }
+  const h = await idb.get('folder');
+  if (!h) return;
+  shared.handle = h; shared.name = h.name;
+  const perm = h.queryPermission ? await h.queryPermission({ mode: 'readwrite' }) : 'granted';
+  if (perm === 'granted') await sharedStart();
+  else { shared.status = 'needs-permission'; render(); }
+}
+async function connectHandle(h) {
+  shared.handle = h; shared.name = h.name; scanCache.clear();
+  await idb.set('folder', h);
+  await sharedStart();
+  toast(`Connected to “${h.name}”.`);
+}
+async function sharedStart() {
+  try {
+    await shared.handle.getDirectoryHandle(REVIEWS_DIR, { create: true });
+    shared.status = 'connected'; shared.error = '';
+  } catch (e) {
+    shared.status = e.name === 'NotAllowedError' || e.name === 'SecurityError' ? 'needs-permission' : 'missing';
+    shared.error = e.message || String(e);
+    render(); return;
+  }
+  render();
+  await sharedRefresh(true);
+}
+async function sharedRefresh(quiet) {
+  if (!sharedOn() || shared.scanning) return;
+  const before = shared.status;
+  shared.scanning = true; paintSharedMeta();
+  try {
+    await syncSharedTpl(quiet);
+    shared.reviews = await scanReviews();
+    shared.scannedAt = nowIso(); shared.error = '';
+  } catch (e) {
+    shared.error = e.message || String(e);
+    if (e.name === 'NotAllowedError' || e.name === 'SecurityError') shared.status = 'needs-permission';
+    else if (e.name === 'NotFoundError') shared.status = 'missing';
+  }
+  shared.scanning = false;
+  if (shared.status !== before) render();
+  else { renderTop(); if (view === 'home') paintShared(); }
+}
+async function syncSharedTpl(quiet) {
+  let f;
+  try { f = await (await shared.handle.getFileHandle(CHECKLIST_FILE)).getFile(); }
+  catch (e) { if (e.name === 'NotFoundError') { shared.tplExists = false; return; } throw e; }
+  shared.tplExists = true;
+  if (BASE.source === 'shared' && BASE.mod === f.lastModified) return;
+  let raw; try { raw = JSON.parse(await f.text()); } catch { return; /* mid-sync */ }
+  const tpl = raw.tpl || raw;
+  if (!Array.isArray(tpl.sections)) return;
+  /* Don't swap the checklist out from under someone with unpublished edits; publishing will warn them instead. */
+  if (BASE.source === 'shared' && tplIsCustom()) {
+    shared.newerTpl = true;
+    const st = $('#tplState'); if (st) st.innerHTML = tplStateHtml();
+    return;
+  }
+  const prev = BASE.source === 'shared' ? BASE.hash : '';
+  adoptSharedTpl(tpl, f.lastModified);
+  shared.tplMeta = { publishedAt: raw.publishedAt || '', publishedBy: raw.publishedBy || '' };
+  shared.newerTpl = false;
+  if (prev && prev !== BASE.hash && !quiet) toast('The shared checklist was updated.');
+  if (view === 'checklist' && !document.activeElement?.dataset?.t) render();
+}
+const scanCache = new Map();
+function summarize(d, file) {
+  return {
+    file, id: d.id, ticket: d.header?.ticket || '', title: d.header?.title || '', stage: STAGES[d.stage] ? d.stage : 'draft', round: d.round || 1,
+    devId: d.header?.devId || '', devName: d.header?.devName || '', revId: d.review?.revId || '', revName: d.review?.revName || '',
+    asgId: d.assignee?.id || '', asgName: d.assignee?.name || '', updatedAt: d.updatedAt || '',
+  };
+}
+async function scanReviews() {
+  const dir = await shared.handle.getDirectoryHandle(REVIEWS_DIR, { create: true });
+  const found = [];
+  for await (const [name, h] of dir.entries()) {
+    if (h.kind !== 'file' || !/\.json$/i.test(name) || name.startsWith('~')) continue;
+    try {
+      const f = await h.getFile();
+      let c = scanCache.get(name);
+      if (!c || c.mod !== f.lastModified || c.size !== f.size) {
+        const d = JSON.parse(await f.text());
+        if (d.app !== 'code-review-desk') continue;
+        c = { mod: f.lastModified, size: f.size, sum: summarize(d, name) };
+        scanCache.set(name, c);
+      }
+      found.push(c.sum);
+    } catch { /* still syncing, or not a review file */ }
+  }
+  /* OneDrive keeps conflicting edits as extra copies of the same review: show the newest, flag the rest. */
+  const byId = new Map();
+  for (const x of found) byId.set(x.id, [...(byId.get(x.id) || []), x]);
+  return [...byId.values()].map(list => {
+    list.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    return { ...list[0], copies: list.slice(1).map(x => x.file) };
+  }).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+async function readShared(file) {
+  const dir = await shared.handle.getDirectoryHandle(REVIEWS_DIR);
+  return JSON.parse(await (await (await dir.getFileHandle(file)).getFile()).text());
+}
+async function writeText(dirName, file, text) {
+  const dir = dirName ? await shared.handle.getDirectoryHandle(dirName, { create: true }) : shared.handle;
+  const w = await (await dir.getFileHandle(file, { create: true })).createWritable();
+  await w.write(text); await w.close();
+}
+/* Save a review into reviews/. Returns false if the user backs out of a conflict. */
+async function writeShared(d) {
+  let file = d.shared?.file || `${safeName(d.header.ticket)}_${d.id.slice(-6)}.json`;
+  let existing = null;
+  try { existing = await readShared(file); } catch (e) { if (e.name !== 'NotFoundError' && !(e instanceof SyntaxError)) throw e; }
+  if (existing && existing.id !== d.id) { file = `${safeName(d.header.ticket)}_${d.id}.json`; existing = null; }
+  if (existing && existing.updatedAt !== d.shared?.base) {
+    const whoSaved = existing.history?.at(-1)?.who || 'Someone';
+    const ok = await confirmDlg('Someone else saved this review',
+      `The shared copy was changed ${fmtWhen(existing.updatedAt)} (now “${STAGES[existing.stage]?.label || existing.stage}”, last action by ${whoSaved}). Saving replaces their version with yours.`, 'Replace theirs');
+    if (!ok) return false;
+  }
+  d.shared = { file, base: d.updatedAt };
+  await writeText(REVIEWS_DIR, file, JSON.stringify(d, null, 1));
+  scanCache.delete(file);
+  return true;
+}
+/* Save to the shared folder when connected, otherwise as a file. Returns 'shared' | 'file' | false. */
+async function persistReview(d, suffix) {
+  if (sharedOn()) {
+    try { if (!await writeShared(d)) return false; setTimeout(() => sharedRefresh(true), 50); return 'shared'; }
+    catch (e) { toast(`Couldn’t save to the shared folder (${e.message}). Saving a file instead.`, true); delete d.shared; }
+  }
+  return await download(fileName(d, suffix), JSON.stringify(d, null, 1), 'application/json') ? 'file' : false;
+}
+async function writeArchive(d) {
+  try { const name = fileName(d, 'code-review', 'html'); await writeText(ARCHIVE_DIR, name, standaloneHTML(d)); return name; }
+  catch { return ''; }
+}
+const teamsMsgHtml = text => `<p class="small muted" style="margin:12px 0 4px">Let them know on Teams:</p>
+  <div class="msgbox" id="msgText">${esc(text)}</div>`;
+
+/* ============================================================ UI bits */
+let toastT;
+function toast(msg, bad) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'show' + (bad ? ' bad' : '');
+  clearTimeout(toastT); toastT = setTimeout(() => t.className = '', 3200);
+}
+let dlgResolve = null;
+function openDlg(html) { const d = $('#dlg'); d.innerHTML = `<div class="dlg-in">${html}</div>`; if (!d.open) d.showModal(); }
+function closeDlg() { const d = $('#dlg'); if (d.open) d.close(); }
+function confirmDlg(title, msg, okLabel) {
+  return new Promise(res => {
+    dlgResolve = res;
+    openDlg(`<h2>${esc(title)}</h2><p>${esc(msg)}</p><div class="dlg-act"><button class="btn" data-a="dlgNo">Cancel</button><button class="btn primary" data-a="dlgYes">${esc(okLabel)}</button></div>`);
+  });
+}
+
+function choiceDlg(title, msg, choices) {
+  return new Promise(res => {
+    dlgResolve = res;
+    openDlg(`<h2>${esc(title)}</h2><p>${esc(msg)}</p><div class="dlg-act"><button class="btn" data-a="dlgNo">Cancel</button>${choices.map(c =>
+      `<button class="btn${c.primary ? ' primary' : ''}" data-a="dlgPick" data-v="${esc(c.value)}">${esc(c.label)}</button>`).join('')}</div>`);
+  });
+}
+
+const chip = s => s ? `<span class="chip ${STATUS[s].cls}">${STATUS[s].label}</span>` : `<span class="chip none">Not assessed</span>`;
+const seg = (a, id, v) => `<div class="seg" role="group">${['F', 'N', 'NA'].map(k =>
+  `<button type="button" class="${STATUS[k].cls}" aria-pressed="${v === k}" data-a="${a}" data-id="${id}" data-v="${k}">${STATUS[k].short}</button>`).join('')}</div>`;
+
+function fld(label, path, o = {}) {
+  const v = getPath(doc, path) ?? '';
+  const id = 'f_' + path.replace(/\W/g, '_');
+  const ph = esc(o.ph || '');
+  const ctl = o.area
+    ? `<textarea id="${id}" data-b="${path}" rows="${o.rows || 3}" placeholder="${ph}">${esc(v)}</textarea>`
+    : `<input id="${id}" data-b="${path}" type="${o.type || 'text'}" value="${esc(v)}" placeholder="${ph}"${o.list ? ` list="${o.list}"` : ''}${o.mono ? ' class="mono"' : ''}${o.type === 'number' ? ' min="0" step="0.25"' : ''}${o.ro ? ' readonly' : ''}>`;
+  return `<label class="fld${o.wide ? ' wide' : ''}" for="${id}"><span>${esc(label)}${o.req ? ' <i class="req">*</i>' : ''}</span>${ctl}${o.help ? `<small>${esc(o.help)}</small>` : ''}</label>`;
+}
+async function copyText(text, msg) {
+  try { await navigator.clipboard.writeText(text); toast(msg); }
+  catch {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand('copy'); ta.remove();
+    toast(ok ? msg : 'Copy was blocked by the browser.', !ok);
+  }
+}
+/* Multi-value system field. Stored as a comma-separated string ("DEV.100, QAS.200") so older review files stay compatible. */
+const tagsHtml = (path, vals) => vals.map((v, i) => `<span class="tag mono">${esc(v)}<button type="button" class="tag-x" data-a="tagDel" data-p="${path}" data-i="${i}" title="Remove ${esc(v)}">✕</button></span>`).join('');
+function sysField(label, path, o = {}) {
+  const vals = splitList(getPath(doc, path));
+  return `<div class="fld${o.wide ? ' wide' : ''}"><span>${esc(label)}</span>
+    <div class="tags" data-tags="${path}" data-ph="${esc(o.ph || '')}">${tagsHtml(path, vals)}<input class="tag-in mono" data-tagin="${path}" list="dl-sys" autocomplete="off" placeholder="${vals.length ? 'Add another…' : esc(o.ph || '')}" aria-label="${esc(label)}"></div>
+    ${o.help ? `<small>${esc(o.help)}</small>` : ''}</div>`;
+}
+function paintTags(path) {
+  const box = document.querySelector(`[data-tags="${path}"]`); if (!box) return;
+  const vals = splitList(getPath(doc, path));
+  $$('.tag', box).forEach(t => t.remove());
+  const inp = $('.tag-in', box);
+  inp.insertAdjacentHTML('beforebegin', tagsHtml(path, vals));
+  inp.placeholder = vals.length ? 'Add another…' : box.dataset.ph;
+}
+function commitTag(inp) {
+  const add = splitList(inp.value); inp.value = '';
+  if (!add.length || !doc) return;
+  const path = inp.dataset.tagin, cur = splitList(getPath(doc, path));
+  for (const v of add) if (!cur.some(c => c.toUpperCase() === v.toUpperCase())) cur.push(v);
+  setPath(doc, path, cur.join(', '));
+  const hist = [];
+  for (const v of [...add, ...store.get('sysHistory', [])]) if (!hist.some(h => h.toUpperCase() === v.toUpperCase())) hist.push(v);
+  store.set('sysHistory', hist.slice(0, 30));
+  paintTags(path); touched();
+}
+const readyList = checks => `<ul class="ready">${checks.map(c => `<li class="${c.ok ? 'ok' : c.soft ? 'soft' : ''}">${esc(c.t)}</li>`).join('')}</ul>`;
+
+/* ============================================================ top bar */
+function renderTop() {
+  const tabs = doc ? tabsFor(doc) : null;
+  const tab = (v, label) => `<button data-a="tab" data-v="${v}" aria-current="${view === v}" ${tabs[v] ? '' : 'disabled'}>${label}</button>`;
+  $('#top').innerHTML = `<div class="topin">
+    <button class="brand" data-a="home" title="Home"><span class="mk"><svg viewBox="0 0 16 16"><path d="M3.5 8.4l3 3 6-6.4" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Code Review Desk</button>
+    ${doc && view !== 'home' && view !== 'checklist' ? `<div class="ctx"><span class="tk">${esc(doc.header.ticket || 'New review')}</span><span class="pill ${doc.stage}">${STAGES[doc.stage].label}${doc.round > 1 ? ' · R' + doc.round : ''}</span></div>
+      <nav class="tabs">${tab('dev', 'Developer')}${tab('rev', 'Reviewer')}${tab('report', 'Document')}</nav>` : ''}
+    <span class="sp"></span>
+    ${sharedPillHtml()}
+    <button class="btn sm" data-a="openFile">Open review file</button>
+    <button class="btn sm" data-a="newReview">New review</button>
+    <button class="btn sm${view === 'checklist' ? ' primary' : ''}" data-a="setup" title="Edit sections, checks and object types">Checklist setup</button>
+    <button class="btn sm ghost" data-a="theme" title="Toggle light/dark">◐</button>
+  </div>`;
+}
+
+/* ============================================================ home */
+function queues(me) {
+  const R = shared.reviews;
+  return {
+    review: R.filter(x => x.stage === 'submitted' && !sameId(x.devId, me) && (sameId(x.asgId, me) || sameId(x.revId, me) || !x.asgId)),
+    changes: R.filter(x => x.stage === 'changes' && sameId(x.devId, me)),
+    drafts: R.filter(x => x.stage === 'draft' && sameId(x.devId, me)),
+    waiting: R.filter(x => x.stage === 'submitted' && sameId(x.devId, me)),
+  };
+}
+function sharedPillHtml() {
+  if (sharedOn()) {
+    const me = myId(), q = me ? queues(me) : null, n = q ? q.review.length + q.changes.length : 0;
+    return `<button class="btn sm ghost spill" data-a="home" title="Shared folder: ${esc(shared.name)}${n ? ` — ${n} waiting on you` : ''}"><span class="sdot"></span>${esc(shared.name)}${n ? `<span class="count">${n}</span>` : ''}</button>`;
+  }
+  if (shared.status === 'needs-permission') return `<button class="btn sm warnbtn" data-a="sharedReconnect" title="Allow access to ${esc(shared.name)} again">Reconnect folder</button>`;
+  if (shared.status === 'missing') return `<button class="btn sm warnbtn" data-a="home">Folder unavailable</button>`;
+  return '';
+}
+function sharedMetaText() {
+  if (shared.scanning && !shared.scannedAt) return 'Reading the folder…';
+  const t = shared.scannedAt ? new Date(shared.scannedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
+  return `${shared.reviews.length} review${shared.reviews.length === 1 ? '' : 's'}${t ? ` · refreshed ${t}` : ''}${shared.scanning ? ' · refreshing…' : ''}${shared.error ? ` · ⚠ ${esc(shared.error)}` : ''}`;
+}
+function qrowHtml(x) {
+  const rev = x.revName || x.revId || x.asgName || x.asgId;
+  return `<div class="qrow" data-a="sharedOpen" data-file="${esc(x.file)}" title="Open ${esc(x.ticket)}">
+    <div class="qmain"><b class="mono">${esc(x.ticket || 'Untitled')}</b> <span>${esc(x.title)}</span>
+      <div class="small faint">${esc(x.devName || x.devId || '—')}${rev ? ` → ${esc(rev)}` : ''}</div></div>
+    <div class="qside"><span class="pill ${x.stage}">${STAGES[x.stage].label}${x.round > 1 ? ' · R' + x.round : ''}</span>
+      ${x.copies.length ? `<span class="badge warn" title="OneDrive kept conflicting copies: ${esc(x.copies.join(', '))}">${x.copies.length + 1} copies</span>` : ''}
+      <div class="small faint">${fmtWhen(x.updatedAt)}</div></div>
+  </div>`;
+}
+function bucketsHtml() {
+  const me = myId();
+  if (!me) return `<div class="banner info" style="margin-top:16px"><span class="bi">ⓘ</span><div><b>Enter your SAP ID above</b>to see what is waiting on you.</div></div>`;
+  const q = queues(me);
+  const bucket = (title, hint, list, always) => (always || list.length) ? `<section class="card bucket">
+    <h3>${title}<span class="badge${list.length ? '' : ' muted'}">${list.length}</span></h3><p class="hint">${hint}</p>
+    ${list.length ? `<div class="qlist">${list.map(qrowHtml).join('')}</div>` : '<p class="muted small" style="margin:0">Nothing here.</p>'}
+  </section>` : '';
+  return `<div class="buckets">
+    ${bucket('Needs my review', 'Sent for review and assigned to you, or not assigned to anyone yet.', q.review, true)}
+    ${bucket('Changes requested on my work', 'Your reviewer sent these back. Open, fix and resubmit.', q.changes, true)}
+    ${bucket('My drafts', 'Started but not sent yet.', q.drafts)}
+    ${bucket('Mine, waiting for review', 'Sent — nothing for you to do.', q.waiting)}
+  </div>`;
+}
+function allReviewsHtml() {
+  const q = ui.sharedQ.trim().toLowerCase();
+  const list = shared.reviews.filter(x => (ui.sharedStage === 'all' || x.stage === ui.sharedStage)
+    && (!q || [x.ticket, x.title, x.devId, x.devName, x.revId, x.revName, x.asgId, x.asgName].join(' ').toLowerCase().includes(q)));
+  const stages = [['all', 'All'], ['draft', 'Draft'], ['submitted', 'In review'], ['changes', 'Changes requested'], ['approved', 'Approved']];
+  return `<div class="filters" style="display:inline-flex;margin-bottom:10px">${stages.map(([k, l]) => `<button data-a="sharedStage" data-v="${k}" aria-pressed="${ui.sharedStage === k}">${l}</button>`).join('')}</div>
+    ${list.length ? `<div class="card" style="padding:6px 10px"><div class="qlist">${list.slice(0, 200).map(qrowHtml).join('')}</div></div>`
+      : `<p class="muted">${shared.reviews.length ? 'No reviews match.' : 'No reviews in the folder yet. Start one and it will be saved here.'}</p>`}`;
+}
+function paintShared() {
+  const b = $('#sharedBuckets'); if (b) b.innerHTML = bucketsHtml();
+  const a = $('#sharedAll'); if (a) a.innerHTML = allReviewsHtml();
+  paintSharedMeta();
+}
+function paintSharedMeta() { const m = $('#sharedMeta'); if (m) m.innerHTML = sharedMetaText(); }
+function sharedHomeHtml() {
+  if (sharedOn()) return `<section class="card sbar">
+      <div class="sbar-main"><span class="sdot big"></span><div><div class="small muted">Shared folder</div><b>${esc(shared.name)}</b><div class="small muted" id="sharedMeta">${sharedMetaText()}</div></div></div>
+      <label class="fld sme"><span>My SAP ID</span><input class="mono" data-me="1" value="${esc(myId())}" placeholder="e.g. 38064200123" autocomplete="off"></label>
+      <div class="sbar-act"><button class="btn sm" data-a="sharedRefresh">Refresh</button><button class="btn sm ghost" data-a="sharedDisconnect">Disconnect</button></div>
+    </section>
+    <div id="sharedBuckets">${bucketsHtml()}</div>
+    <div class="allhead"><h3 class="h">All reviews in the folder</h3><input type="search" data-sq="1" placeholder="Search ticket, title or person…" value="${esc(ui.sharedQ)}"></div>
+    <div id="sharedAll">${allReviewsHtml()}</div>`;
+  if (shared.status === 'needs-permission') return `<div class="banner warn" style="margin-bottom:16px"><span class="bi">🔒</span><div><b>Reconnect to “${esc(shared.name)}”</b>Your browser needs your OK again to use the shared folder.
+      <div style="margin-top:8px"><button class="btn sm primary" data-a="sharedReconnect">Reconnect</button> <button class="btn sm ghost" data-a="sharedDisconnect">Disconnect</button></div></div></div>`;
+  if (shared.status === 'missing') return `<div class="banner bad" style="margin-bottom:16px"><span class="bi">⚠</span><div><b>Can’t reach “${esc(shared.name)}”</b>Check that OneDrive is running and the folder hasn’t been moved or renamed.${shared.error ? ` <span class="muted small">(${esc(shared.error)})</span>` : ''}
+      <div style="margin-top:8px"><button class="btn sm primary" data-a="sharedRetry">Try again</button> <button class="btn sm" data-a="sharedConnect">Choose another folder</button> <button class="btn sm ghost" data-a="sharedDisconnect">Disconnect</button></div></div></div>`;
+  if (shared.status === 'unsupported') return '';
+  return `<section class="card connect">
+      <div style="flex:1;min-width:260px"><h2 style="margin:0 0 6px">Work from a shared Teams folder</h2>
+        <p class="muted" style="margin:0">Keep every review and the team checklist in one Teams / SharePoint folder. Everyone sees the same queue — no files to send around.</p></div>
+      <button class="btn primary" data-a="sharedConnect">Connect shared folder</button>
+    </section>`;
+}
+function renderHome() {
+  const drafts = store.keys('draft.').map(k => store.get(k)).filter(Boolean).sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+  if (sharedOn() && Date.now() - (shared.scannedAt ? Date.parse(shared.scannedAt) : 0) > 15000) setTimeout(() => sharedRefresh(true), 0);
+  const on = sharedOn();
+  const localList = drafts.length ? `<table class="drafts">${drafts.map(d => `<tr>
+    <td><b>${esc(d.header?.ticket || 'Untitled')}</b> <span class="muted">${esc(d.header?.title || '')}</span></td>
+    <td><span class="pill ${d.stage}">${STAGES[d.stage]?.label || d.stage}${d.round > 1 ? ' · R' + d.round : ''}</span></td>
+    <td class="muted small">${fmtWhen(d.updatedAt)}</td>
+    <td><button class="btn sm" data-a="openDraft" data-id="${esc(d.id)}">Open</button> <button class="icon" data-a="delDraft" data-id="${esc(d.id)}" title="Remove from this browser">✕</button></td>
+  </tr>`).join('')}</table>` : '';
+  if (on) return `
+  <div class="hero" style="padding-bottom:12px"><h1>Code reviews</h1></div>
+  ${sharedHomeHtml()}
+  <div class="choices" style="margin-top:22px">
+    <section class="card choice"><h2>Start a review</h2><p>For your change: details, objects, transports, then the checks that apply. It is saved to the shared folder.</p><button class="btn primary" data-a="newReview">Start a new review</button></section>
+    <section class="card choice"><h2>Got a file instead?</h2><p>Open a <code>.json</code> someone sent you. Saving it puts it in the shared folder.</p><div class="drop" data-a="openFile">Drop the file here, or click to choose</div></section>
+  </div>
+  <p class="setupnote muted">Using <b>${esc(TPL.name)}</b> v${esc(TPL.version)}${BASE.source === 'shared' ? (tplIsCustom() ? ' with your unpublished changes' : ' from the shared folder') : tplIsCustom() ? ', customised in this browser' : ''}. <button class="btn sm" data-a="setup">Checklist setup</button></p>
+  ${drafts.length ? `<details class="how"><summary>In this browser (${drafts.length})</summary><div class="card" style="padding:6px 14px;margin-top:8px">${localList}</div>
+  <p class="faint small">A local safety net. The shared folder is the real record.</p></details>` : ''}`;
+  return `
+  ${sharedHomeHtml() ? `<div style="margin-top:20px">${sharedHomeHtml()}</div>` : ''}
+  <div class="hero">
+    <h1>Code reviews, without the spreadsheet shuffle</h1>
+    <p>Describe your change, tick only the checks that apply, and send the file to your reviewer. They open it here, review it, and you get back a finished document ready for Confluence.</p>
+  </div>
+  <div class="choices">
+    <section class="card choice">
+      <h2>I’m the developer</h2>
+      <p>Start a checklist for a change: ticket, objects, transports, then the applicable QA checks with your self-review.</p>
+      <button class="btn primary" data-a="newReview">Start a new review</button>
+    </section>
+    <section class="card choice">
+      <h2>I received a review file</h2>
+      <p>Reviewers open the <code>.json</code> they were sent. Developers open it again when changes are requested.</p>
+      <div class="drop" data-a="openFile">Drop the file here, or click to choose</div>
+    </section>
+  </div>
+  <div class="flow">
+    <div><b>Developer builds</b>Change details, objects and TRs, applicable checks with a self-review. Saves <code>…_for-review.json</code>.</div>
+    <div><b>Reviewer reviews</b>Opens the file in this same page, checks each item, can add checks you missed, gives a verdict.</div>
+    <div><b>Back and forth</b>If changes are requested, the file returns to you. Each round is kept in the history.</div>
+    <div><b>Archive</b>Once approved: copy the document into a Confluence page and attach the archive <code>.html</code>.</div>
+  </div>
+  <p class="setupnote muted">${tplIsCustom() ? `Using <b>${esc(TPL.name)}</b> v${esc(TPL.version)}, customised in this browser.` : `Using <b>${esc(TPL.name)}</b> v${esc(TPL.version)}.`} Need other checks, sections or object types? <button class="btn sm" data-a="setup">Checklist setup</button></p>
+  ${drafts.length ? `<h3 class="h">Recent in this browser</h3>
+  <div class="card" style="padding:6px 14px">${localList}</div>
+  <p class="faint small">Kept in this browser only, as a safety net. The files you save are the real record.</p>` : ''}`;
+}
+
+/* ============================================================ developer view */
+function devChecks(d) {
+  const sel = selItems(d);
+  const noS = sel.filter(([, i]) => !i.dev.s).length;
+  const noC = sel.filter(([, i]) => i.dev.s === 'N' && !i.dev.c.trim()).length;
+  const list = [
+    { ok: !!d.header.ticket.trim(), t: 'Ticket number' },
+    { ok: !!d.header.devId.trim(), t: 'Developer SAP ID' },
+    { ok: d.objects.some(o => o.name.trim()), t: 'At least one object' },
+    { ok: trsOf(d).length > 0, t: 'At least one transport request' },
+    { ok: sel.length > 0, t: sel.length ? `${sel.length} checks ticked` : 'Tick the applicable checks' },
+    { ok: sel.length > 0 && noS === 0, t: noS ? `${noS} ticked checks need your self-review` : 'Self-review done' },
+    { ok: noC === 0, t: noC ? `${noC} “Not followed” need a reason` : 'Exceptions explained' },
+  ];
+  if (d.stage === 'changes') {
+    const open = sel.filter(([, i]) => i.rev.s === 'N' && !i.reply.trim()).length;
+    list.push({ ok: open === 0, t: open ? `${open} flagged checks need your response` : 'Reviewer findings answered' });
+  }
+  return list;
+}
+
+function renderDev() {
+  const d = doc, h = d.header;
+  const sug = suggestedSecs(d);
+  const secs = sectionsFor(d);
+  const last = d.history.filter(x => x.role === 'Reviewer').at(-1);
+  const banner =
+    d.stage === 'changes' ? `<div class="banner bad"><span class="bi">↺</span><div><b>Changes requested — round ${d.round}</b>${esc(revWho(d))}${d.review.date ? ' on ' + fmtDate(d.review.date) : ''}.${d.review.comment ? `<div style="margin-top:4px;white-space:pre-wrap">“${esc(d.review.comment)}”</div>` : ''}<div class="small muted" style="margin-top:4px">Fix the flagged checks (marked below), respond to each, then resubmit.</div></div></div>`
+    : d.stage === 'submitted' ? `<div class="banner warn"><span class="bi">⏳</span><div><b>Sent for review</b>If you change anything now, save and send the new file again — your reviewer still has the old one.</div></div>`
+    : '';
+  const typeOpts = v => `<option value="">Type…</option>` + TPL.objectTypes.map(t => `<option value="${t.id}"${t.id === v ? ' selected' : ''}>${esc(t.label || 'Untitled type')}</option>`).join('')
+    + (v && !TPL.objectTypes.some(t => t.id === v) ? `<option value="${esc(v)}" selected>${esc(typeLabelOf({ type: v, typeLabel: d.objects.find(o => o.type === v)?.typeLabel }) || v)}</option>` : '');
+
+  const secHtml = secs.map(s => {
+    const selCount = s.items.filter(i => d.items[i.id]?.sel).length;
+    const isSug = sug.has(s.id);
+    const closed = ui.collapsed[s.id] ?? !(isSug || selCount > 0 || (!sug.size && s.id === 'GEN'));
+    const items = s.items.filter(i => !ui.selOnly || d.items[i.id]?.sel);
+    if (ui.selOnly && !items.length) return '';
+    return `<div class="sec${closed ? ' closed' : ''}">
+      <div class="sec-h" data-a="toggleSec" data-s="${s.id}">
+        <input type="checkbox" data-a="selSec" data-s="${s.id}" ${selCount === s.items.length ? 'checked' : ''} ${selCount && selCount < s.items.length ? 'data-ind="1"' : ''} title="Tick / untick every check in this section">
+        <h3>${esc(s.title)}</h3>${isSug ? '<span class="badge">Suggested</span>' : ''}
+        <span class="cnt">${selCount} / ${s.items.length} ticked</span><span class="chev">▾</span>
+      </div>
+      <div class="sec-b">${items.map(i => devItem(i)).join('')}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="layout"><div class="col">
+    ${banner}
+    <section class="card"><h2><span class="step">1</span>Change details</h2>
+      <div class="grid">
+        ${fld('Ticket no', 'header.ticket', { req: true, ph: 'e.g. CHG-10452', mono: true })}
+        ${fld('Module', 'header.module', { list: 'dl-modules', ph: 'e.g. PA' })}
+        ${fld('Creation date', 'header.created', { type: 'date' })}
+        ${fld('Short title', 'header.title', { wide: true, ph: 'e.g. Leave balance report — add carry-forward column' })}
+        ${fld('What changed and why', 'header.summary', { area: true, wide: true, rows: 3, ph: 'A few lines for the reviewer: scope, approach, anything risky or worth a closer look.' })}
+        ${fld('Developer SAP ID', 'header.devId', { req: true, mono: true })}
+        ${fld('Developer name', 'header.devName')}
+        ${fld('Reviewer SAP ID', 'assignee.id', { mono: true, ph: 'Optional', help: 'Puts the review in their “Needs my review” list.' })}
+        ${fld('Reviewer name', 'assignee.name', { ph: 'Optional' })}
+        ${sysField('System/Client — development', 'header.devSystem', { ph: 'e.g. DEV.100', help: 'Usually one. Press Enter to add another.' })}
+        ${sysField('Systems/Clients — import required', 'header.importSystem', { wide: true, ph: 'e.g. QAS.200', help: 'Add every target system. Enter or comma adds each one.' })}
+        <datalist id="dl-sys">${store.get('sysHistory', []).map(x => `<option value="${esc(x)}">`).join('')}</datalist>
+      </div>
+      <datalist id="dl-modules">${MODULES.map(m => `<option value="${m}">`).join('')}</datalist>
+    </section>
+
+    <section class="card"><h2><span class="step">2</span>Objects<span class="aside">Object types suggest which checklist sections apply</span></h2>
+      <div class="tbl-wrap"><table class="ed"><thead><tr><th style="width:36%">Object name</th><th style="width:30%">Type</th><th>Note</th><th></th></tr></thead><tbody>
+      ${d.objects.map((o, i) => `<tr>
+        <td><input class="mono" data-b="objects.${i}.name" value="${esc(o.name)}" placeholder="e.g. ZHR_LEAVE_BALANCE_RPT"></td>
+        <td><select data-b="objects.${i}.type" data-rr="1">${typeOpts(o.type)}</select></td>
+        <td><input data-b="objects.${i}.note" value="${esc(o.note)}" placeholder="e.g. modified — routine GET_DATA"></td>
+        <td>${d.objects.length > 1 ? `<button class="icon" data-a="delObj" data-i="${i}" title="Remove">✕</button>` : ''}</td>
+      </tr>`).join('')}
+      </tbody></table></div>
+      <button class="btn sm" data-a="addObj" style="margin-top:8px">＋ Add object</button>
+    </section>
+
+    <section class="card"><h2><span class="step">3</span>Transport requests<span class="aside">Your reviewer ticks each one off as they check it</span></h2>
+      <div class="tbl-wrap"><table class="ed"><thead><tr><th style="width:26%">Transport request</th><th style="width:22%">Source system/client</th><th>Note</th><th></th></tr></thead><tbody>
+      ${d.transports.map((t, i) => `<tr>
+        <td><input class="mono" data-b="transports.${i}.tr" data-trin="${i}" value="${esc(t.tr)}" placeholder="e.g. DEVK900123" autocomplete="off"></td>
+        <td><input class="mono" data-b="transports.${i}.system" data-trsys="1" list="dl-src" value="${esc(t.system)}" placeholder="${esc(splitList(h.devSystem)[0] || 'e.g. DEV.100')}" autocomplete="off"></td>
+        <td><input data-b="transports.${i}.note" value="${esc(t.note)}" placeholder="e.g. Workbench — report program and text elements"></td>
+        <td>${d.transports.length > 1 ? `<button class="icon" data-a="delTr" data-i="${i}" title="Remove">✕</button>` : ''}</td>
+      </tr>`).join('')}
+      </tbody></table></div>
+      <datalist id="dl-src"></datalist>
+      <button class="btn sm" data-a="addTr" style="margin-top:8px">＋ Add transport</button>
+      <span class="faint small" style="margin-left:8px">Tip: paste several TR numbers into one box to add a row for each.</span>
+    </section>
+
+    <section class="card"><h2><span class="step">4</span>Version backup</h2>
+      <label class="tog"><input type="checkbox" data-a="toggleBackup" ${d.backupOn ? 'checked' : ''}> Record existing TRs present in each system prior to movement</label>
+      ${d.backupOn ? `<div class="tbl-wrap" style="margin-top:10px"><table class="ed"><thead><tr><th>Object</th><th style="width:96px">System</th><th>Dev</th><th>PreProd</th><th>Prod</th><th></th></tr></thead><tbody>
+        ${d.backup.map((b, i) => `<tr>
+          <td><input class="mono" data-b="backup.${i}.object" value="${esc(b.object)}" list="dl-objs"></td>
+          <td>${TPL.systems.length ? `<select data-b="backup.${i}.system">${[...new Set([...(b.system ? [b.system] : []), ...TPL.systems])].map(s => `<option${s === b.system ? ' selected' : ''}>${esc(s)}</option>`).join('')}</select>` : `<input class="mono" data-b="backup.${i}.system" value="${esc(b.system)}" placeholder="e.g. DEV">`}</td>
+          <td><input class="mono" data-b="backup.${i}.dev" value="${esc(b.dev)}"></td>
+          <td><input class="mono" data-b="backup.${i}.preprod" value="${esc(b.preprod)}"></td>
+          <td><input class="mono" data-b="backup.${i}.prod" value="${esc(b.prod)}"></td>
+          <td><button class="icon" data-a="delBk" data-i="${i}" title="Remove">✕</button></td>
+        </tr>`).join('')}
+      </tbody></table></div>
+      <datalist id="dl-objs">${d.objects.filter(o => o.name).map(o => `<option value="${esc(o.name)}">`).join('')}</datalist>
+      <button class="btn sm" data-a="addBk" style="margin-top:8px">＋ Add row</button>` : ''}
+    </section>
+
+    <section class="card"><h2><span class="step">5</span>Applicable checks<span class="aside">Only ticked checks go to the reviewer</span></h2>
+      <div class="tools">
+        <input type="search" data-f="1" placeholder="Filter checks…" value="${esc(ui.filter)}">
+        <label class="tog"><input type="checkbox" data-a="selOnly" ${ui.selOnly ? 'checked' : ''}> Ticked only</label>
+        ${sug.size ? `<button class="btn sm" data-a="tickSug">Tick all in suggested sections</button>` : ''}
+        <button class="btn sm ghost" data-a="expandAll">Expand all</button>
+        <button class="btn sm ghost" data-a="collapseAll">Collapse all</button>
+      </div>
+      <p class="sugline muted">${sug.size ? `Suggested for your object types: <b>${[...sug].map(id => esc(TPL.sections.find(s => s.id === id)?.title || id)).join(', ')}</b>.` : 'Set an object type above to get section suggestions.'}</p>
+      <div id="checks">${secHtml}</div>
+    </section>
+  </div>
+  <aside class="rail" id="rail">${devRail()}</aside></div>`;
+}
+
+function devItem(i) {
+  const it = doc.items[i.id];
+  const on = !!it?.sel;
+  const revNote = on && doc.stage === 'changes' && (it.rev.s || it.rev.c)
+    ? `<div class="revnote">Reviewer: ${chip(it.rev.s)} ${esc(it.rev.c)}</div>
+       ${it.rev.s === 'N' || it.rev.c ? `<input class="cmt" data-b="items.${i.id}.reply" value="${esc(it.reply)}" placeholder="Your response to the reviewer${it.rev.s === 'N' ? ' (required)' : ''}">` : ''}`
+    : '';
+  return `<div class="item${on ? ' on' : ''}" data-q="${esc((i.id + ' ' + i.text).toLowerCase())}">
+    <label class="item-top"><input type="checkbox" data-a="selItem" data-id="${i.id}" ${on ? 'checked' : ''}><span class="num">${i.n}</span><span class="txt">${esc(i.text)}${it?.by === 'rev' ? ' <span class="badge warn">Added by reviewer</span>' : ''}</span></label>
+    ${on ? `<div class="item-x">${seg('devS', i.id, it.dev.s)}
+      <input class="cmt" data-b="items.${i.id}.dev.c" value="${esc(it.dev.c)}" placeholder="${it.dev.s === 'N' ? 'Why not followed? (required)' : 'Developer comment (optional)'}">
+      ${revNote}</div>` : ''}
+  </div>`;
+}
+
+function devRail() {
+  const d = doc, checks = devChecks(d), ready = checks.every(c => c.ok);
+  const secs = selectedSections(d);
+  return `<div class="card">
+      <h4>Checklist summary</h4>
+      ${secs.length ? `<ul class="secsum">${secs.map(s => `<li><span>${esc(s.title)}</span><b>${s.items.length}</b></li>`).join('')}</ul>` : '<p class="muted small" style="margin:0">No checks ticked yet.</p>'}
+    </div>
+    <div class="card">
+      <h4>Ready to send?</h4>
+      ${readyList(checks)}
+      <div class="stack">
+        <button class="btn primary block" data-a="submit" ${ready ? '' : 'disabled'}>${d.stage === 'changes' ? `Resubmit (round ${d.round + 1})` : 'Save file for reviewer'}</button>
+        <button class="btn block" data-a="saveDraft">Save draft file</button>
+        <button class="btn ghost block" data-a="tab" data-v="report">Preview document</button>
+      </div>
+      <p class="faint small" style="margin:10px 0 0">Your work is also kept in this browser as you type.</p>
+    </div>`;
+}
+
+/* ============================================================ reviewer view */
+function revChecks(d) {
+  const sel = selItems(d);
+  const pending = sel.filter(([, i]) => !i.rev.s).length;
+  const noC = sel.filter(([, i]) => i.rev.s === 'N' && !i.rev.c.trim()).length;
+  const list = [
+    { ok: !!d.review.revId.trim(), t: 'Reviewer SAP ID' },
+    { ok: !!d.review.date, t: 'Review date' },
+    { ok: String(d.review.effort).trim() !== '', t: 'Review effort (person hours)' },
+    { ok: sel.length > 0 && pending === 0, t: pending ? `${pending} checks still to review` : 'Every check reviewed' },
+    ...(trsOf(d).length ? [{ ok: trsOf(d).every(t => t.checked), t: trsOf(d).some(t => !t.checked) ? `${trsOf(d).filter(t => !t.checked).length} transports not checked yet` : 'Every transport checked' }] : []),
+    { ok: noC === 0, t: noC ? `${noC} “Not followed” need a comment` : 'Findings explained' },
+    { ok: !!d.review.verdict, t: 'Verdict' },
+  ];
+  if (d.review.revId.trim() && d.review.revId.trim() === d.header.devId.trim()) list.push({ ok: false, soft: true, t: 'Reviewer ID is the same as the developer’s' });
+  return list;
+}
+
+function renderRev() {
+  const d = doc, h = d.header;
+  const tampered = d.seals.dev && devSealOf(d) !== d.seals.dev;
+  const lastRound = d.pastRounds.at(-1);
+  const secs = selectedSections(d);
+  const show = it => ui.revFilter === 'all' || (ui.revFilter === 'pending' && !it.rev.s) || (ui.revFilter === 'issues' && (it.rev.s === 'N' || it.dev.s === 'N'));
+  const trs = trsOf(d);
+  const nChecked = trs.filter(t => t.checked).length;
+
+  return `<div class="layout"><div class="col">
+    ${tampered ? `<div class="banner bad"><span class="bi">⚠</span><div><b>This file was changed after the developer sent it</b>The developer’s section no longer matches the fingerprint taken when it was submitted. Confirm with ${esc(devWho(d))} that you have the right file.</div></div>` : ''}
+    ${d.round > 1 ? `<div class="banner info"><span class="bi">↻</span><div><b>Round ${d.round}</b>You requested changes in round ${lastRound?.round}. Previously flagged checks are reset for you to re-check; the developer’s responses are shown under each one.</div></div>` : ''}
+    <section class="card"><h2><span class="step">1</span>Change under review</h2>
+      <dl class="kv">
+        <div><dt>Ticket</dt><dd class="mono">${esc(h.ticket)}</dd></div>
+        <div><dt>Module</dt><dd>${esc(h.module) || '—'}</dd></div>
+        <div><dt>Developer</dt><dd>${esc(devWho(d))}</dd></div>
+        <div><dt>Creation date</dt><dd>${fmtDate(h.created) || '—'}</dd></div>
+        ${d.assignee.id || d.assignee.name ? `<div><dt>Assigned reviewer</dt><dd>${esc(who(d.assignee.id, d.assignee.name))}</dd></div>` : ''}
+        <div><dt>System/Client — development</dt><dd class="mono">${splitList(h.devSystem).map(esc).join(', ') || '—'}</dd></div>
+        <div><dt>Systems/Clients — import</dt><dd class="mono">${splitList(h.importSystem).map(esc).join(', ') || '—'}</dd></div>
+      </dl>
+      ${h.title || h.summary ? `<div class="summary">${h.title ? `<b>${esc(h.title)}</b>${h.summary ? '\n' : ''}` : ''}${esc(h.summary)}</div>` : ''}
+      <div class="tbl-wrap"><table class="ro"><thead><tr><th>Object</th><th>Type</th><th>Note</th></tr></thead><tbody>
+        ${d.objects.filter(o => o.name).map(o => `<tr><td class="mono">${esc(o.name)}</td><td>${esc(typeLabelOf(o))}</td><td>${esc(o.note)}</td></tr>`).join('')}
+      </tbody></table></div>
+      ${d.backupOn && d.backup.length ? `<details style="margin-top:10px"><summary class="muted" style="cursor:pointer">Version backup (${d.backup.length})</summary>
+        <div class="tbl-wrap"><table class="ro"><thead><tr><th>Object</th><th>System</th><th>Dev</th><th>PreProd</th><th>Prod</th></tr></thead><tbody>
+        ${d.backup.map(b => `<tr><td class="mono">${esc(b.object)}</td><td>${esc(b.system)}</td><td class="mono">${esc(b.dev)}</td><td class="mono">${esc(b.preprod)}</td><td class="mono">${esc(b.prod)}</td></tr>`).join('')}
+        </tbody></table></div></details>` : ''}
+    </section>
+
+    <section class="card"><h2><span class="step">2</span>Transport requests<span class="aside" id="trCount">${nChecked} / ${trs.length} checked</span></h2>
+      ${trs.length ? `<div class="tools"><button class="btn sm" data-a="copyTrs">Copy all TR numbers</button><span class="faint small">Tick each transport once you have checked it.</span></div>
+      <div class="trlist">${trs.map(t => { const i = d.transports.indexOf(t); return `<div class="tritem${t.checked ? ' done' : ''}">
+        <label class="trchk" title="Mark as checked"><input type="checkbox" data-a="trCheck" data-i="${i}" ${t.checked ? 'checked' : ''}></label>
+        <div class="trmain">
+          <div class="trhead"><span class="mono trno">${esc(t.tr)}</span><button class="btn sm ghost" data-a="copyTr" data-i="${i}" title="Copy ${esc(t.tr)}">Copy</button><span class="muted small mono">${esc(t.system) || '—'}</span></div>
+          ${t.note ? `<p class="cm">${esc(t.note)}</p>` : ''}
+          <input class="cmt" data-b="transports.${i}.revNote" value="${esc(t.revNote)}" placeholder="Reviewer note (optional)">
+        </div>
+      </div>`; }).join('')}</div>` : '<p class="muted">The developer listed no transport requests.</p>'}
+    </section>
+
+    <section class="card"><h2><span class="step">3</span>Reviewer details</h2>
+      <div class="grid">
+        ${fld('Check performed by (SAP ID)', 'review.revId', { req: true, mono: true })}
+        ${fld('Reviewer name', 'review.revName')}
+        ${fld('Review date', 'review.date', { type: 'date', req: true })}
+        ${fld('Review effort (person hours)', 'review.effort', { type: 'number', req: true, ph: 'e.g. 1.5' })}
+      </div>
+    </section>
+
+    <section class="card"><h2><span class="step">4</span>Checks</h2>
+      <div class="tools">
+        <div class="filters">${[['all', 'All'], ['pending', 'To review'], ['issues', 'Not followed']].map(([k, l]) => `<button data-a="revFilter" data-v="${k}" aria-pressed="${ui.revFilter === k}">${l}</button>`).join('')}</div>
+        <span class="sp"></span>
+        <button class="btn sm" data-a="addMissed">＋ Add a check the developer missed</button>
+      </div>
+      ${secs.map(s => {
+        const items = s.items.filter(i => show(d.items[i.id]));
+        if (!items.length) return '';
+        return `<div class="sec"><div class="sec-h" style="cursor:default"><h3>${esc(s.title)}</h3><span class="cnt">${s.items.filter(i => d.items[i.id].rev.s).length} / ${s.items.length} reviewed</span></div>
+          <div class="sec-b">${items.map(i => revItem(i)).join('')}</div></div>`;
+      }).join('') || '<p class="muted">Nothing matches this filter.</p>'}
+    </section>
+
+    <section class="card"><h2><span class="step">5</span>Verdict</h2>
+      <div class="verdict">
+        <button class="vbtn ok" data-a="verdict" data-v="approve" aria-pressed="${d.review.verdict === 'approve'}">✔ Approve<small>Meets the checklist. Ready to archive.</small></button>
+        <button class="vbtn bad" data-a="verdict" data-v="changes" aria-pressed="${d.review.verdict === 'changes'}">↺ Request changes<small>The file goes back to the developer for another round.</small></button>
+      </div>
+      ${fld('Overall comment', 'review.comment', { area: true, wide: true, rows: 3, ph: 'Summary for the developer and the archive.' })}
+    </section>
+  </div>
+  <aside class="rail" id="rail">${revRail()}</aside></div>`;
+}
+
+function revItem(i) {
+  const d = doc, it = d.items[i.id];
+  const lr = d.pastRounds.at(-1);
+  const prev = lr?.items?.[i.id];
+  return `<div class="item rv st-${it.rev.s || 'none'}">
+    <div class="item-top"><span class="num">${i.n}</span><span class="txt">${esc(i.text)}</span>
+      ${it.by === 'rev' ? `<span class="badge warn">Added by reviewer</span>${isThisRoundRevAdd(d, it) ? `<button class="icon" data-a="unMissed" data-id="${i.id}" title="Remove this added check">✕</button>` : ''}` : ''}</div>
+    <div class="rv-grid">
+      <div class="rv-col"><div class="lbl">Developer</div>${chip(it.dev.s)}${it.dev.c ? `<p class="cm">${esc(it.dev.c)}</p>` : ''}
+        ${prev && (prev.s === 'N' || prev.c || prev.reply) ? `<div class="prev">Round ${lr.round} review: ${chip(prev.s)} ${esc(prev.c)}${prev.reply ? `<br>Developer response: ${esc(prev.reply)}` : ''}</div>` : ''}
+      </div>
+      <div class="rv-col"><div class="lbl">Reviewer check</div>${seg('revS', i.id, it.rev.s)}
+        <input class="cmt" data-b="items.${i.id}.rev.c" value="${esc(it.rev.c)}" placeholder="${it.rev.s === 'N' ? 'What needs fixing? (required)' : 'Reviewer comment (optional)'}">
+      </div>
+    </div>
+  </div>`;
+}
+
+function revRail() {
+  const d = doc, sel = selItems(d).map(([, i]) => i);
+  const done = sel.filter(i => i.rev.s).length;
+  const n = k => sel.filter(i => i.rev.s === k).length;
+  const checks = revChecks(d), ready = checks.filter(c => !c.soft).every(c => c.ok);
+  return `<div class="card">
+      <h4>Progress</h4>
+      <div class="small"><b>${done}</b> of ${sel.length} checks reviewed</div>
+      <div class="bar"><i style="width:${sel.length ? Math.round(done / sel.length * 100) : 0}%"></i></div>
+      <div class="stats"><span class="chip ok">${n('F')} followed</span><span class="chip bad">${n('N')} not followed</span><span class="chip na">${n('NA')} N/A</span></div>
+    </div>
+    <div class="card">
+      <h4>Ready to finish?</h4>
+      ${readyList(checks)}
+      <div class="stack">
+        <button class="btn primary block" data-a="finish" ${ready ? '' : 'disabled'}>Finish review</button>
+        <button class="btn block" data-a="saveProgress">Save progress file</button>
+        <button class="btn ghost block" data-a="tab" data-v="report">Preview document</button>
+      </div>
+    </div>`;
+}
+
+/* ============================================================ report */
+const REPORT_CSS = `
+.rp{font:13px/1.45 "Segoe UI",system-ui,sans-serif;color:#1d2330;min-width:760px}
+.rp h1{font-size:20px;margin:0 0 2px}
+.rp .sub{margin:0 0 14px;color:#4b5467}
+.rp h3{font-size:12.5px;margin:20px 0 6px;text-transform:uppercase;letter-spacing:.05em;color:#3b4456}
+.rp table{border-collapse:collapse;width:100%}
+.rp th,.rp td{border:1px solid #c7cdd8;padding:5px 8px;vertical-align:top;text-align:left}
+.rp th{background:#eef1f6;font-weight:600}
+.rp .kv th{width:19%}.rp .kv td{width:31%}
+.rp tr.sec td{background:#dfe6f3;font-weight:700}
+.rp .num{width:34px;text-align:right;color:#5e6778}
+.rp .st{white-space:nowrap;font-weight:600}
+.rp .st.F{color:#1b7a4a}.rp .st.N{color:#b3261e}.rp .st.NA{color:#5e6778}
+.rp .stamp{display:inline-block;border:2px solid;padding:1px 9px;font-weight:700;letter-spacing:.08em;font-size:11.5px;border-radius:3px;vertical-align:middle;margin-left:8px}
+.rp .stamp.approved{color:#1b7a4a}.rp .stamp.changes{color:#b3261e}.rp .stamp.submitted{color:#8a5a00}.rp .stamp.draft{color:#5e6778}
+.rp .mono{font-family:Consolas,"Cascadia Mono",monospace}
+.rp .tag{font-size:11px;color:#8a5a00;font-weight:600}
+.rp .pre{white-space:pre-wrap}
+.rp .foot{margin-top:18px;font-size:11px;color:#5e6778;border-top:1px solid #dde1e8;padding-top:8px}
+.rp tr{page-break-inside:avoid}
+`;
+
+function reportHTML(d) {
+  const h = d.header, r = d.review;
+  const st = s => s ? `<span class="st ${s}">${STATUS[s].mark} ${STATUS[s].code}</span>` : '<span class="st">—</span>';
+  const objs = d.objects.filter(o => o.name);
+  const trs = trsOf(d);
+  const secs = selectedSections(d);
+  const devSealState = !d.seals.dev ? 'not sealed yet' : d.stage === 'changes' ? `${d.seals.dev} (awaiting resubmission)` : devSealOf(d) === d.seals.dev ? `${d.seals.dev} ✔ intact` : `${d.seals.dev} ⚠ MODIFIED after submission`;
+  const revSealState = !d.seals.rev ? 'not sealed yet' : revSealOf(d) === d.seals.rev ? `${d.seals.rev} ✔ intact` : `${d.seals.rev} ⚠ MODIFIED after review`;
+  const verdict = d.stage === 'approved' ? 'Approved' : d.stage === 'changes' ? 'Changes requested' : '—';
+  const tbl = (head, rows) => `<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%"><tr>${head.map(x => `<th>${x}</th>`).join('')}</tr>${rows.join('')}</table>`;
+
+  return `<div class="rp">
+  <h1>${esc(d.template.name)}<span class="stamp ${d.stage}">${STAGES[d.stage].stamp}</span></h1>
+  <p class="sub"><b>${esc(h.ticket)}</b>${h.title ? ' — ' + esc(h.title) : ''}</p>
+  <table class="kv" border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%">
+    <tr><th>Module</th><td>${esc(h.module)}</td><th>Check performed by (SAP ID)</th><td>${esc(who(r.revId, r.revName))}</td></tr>
+    <tr><th>Ticket no</th><td class="mono">${esc(h.ticket)}</td><th>Review date</th><td>${fmtDate(r.date)}</td></tr>
+    <tr><th>Object name(s)</th><td class="mono">${objs.map(o => esc(o.name)).join(',<br>')}</td><th>Review effort (person hours)</th><td>${totalEffort(d)}${d.pastRounds.length && totalEffort(d) !== '' ? ` <span style="color:#5e6778">(${d.round} rounds)</span>` : ''}</td></tr>
+    <tr><th>Developer SAP ID</th><td>${esc(who(h.devId, h.devName))}</td><th>Verdict</th><td><b>${verdict}</b></td></tr>
+    <tr><th>Creation date</th><td>${fmtDate(h.created)}</td><th>Review round</th><td>${d.round}</td></tr>
+    <tr><th>Systems/Client where development is done</th><td class="mono">${splitList(h.devSystem).map(esc).join('<br>')}</td><th rowspan="2">Transport requests</th><td rowspan="2" class="mono">${trs.map(t => esc(t.tr)).join('<br>')}</td></tr>
+    <tr><th>Systems/Client where import is required</th><td class="mono">${splitList(h.importSystem).map(esc).join('<br>')}</td></tr>
+  </table>
+
+  ${h.summary ? `<h3>Change description</h3><p class="pre" style="margin:0">${esc(h.summary)}</p>` : ''}
+  ${trs.length ? `<h3>Transport requests</h3>${tbl(['Transport request', 'Source system/client', 'Developer note', 'Reviewer checked', 'Reviewer note'], trs.map(t => `<tr><td class="mono">${esc(t.tr)}</td><td class="mono">${esc(t.system)}</td><td class="pre">${esc(t.note)}</td><td><span class="st ${t.checked ? 'F' : ''}">${t.checked ? '✔ Checked' : '—'}</span></td><td class="pre">${esc(t.revNote)}</td></tr>`))}` : ''}
+  ${objs.some(o => o.type || o.note) ? `<h3>Objects</h3>${tbl(['Object', 'Type', 'Note'], objs.map(o => `<tr><td class="mono">${esc(o.name)}</td><td>${esc(typeLabelOf(o))}</td><td>${esc(o.note)}</td></tr>`))}` : ''}
+
+  <h3>QA checks</h3>
+  <table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%">
+    <tr><th class="num">#</th><th style="width:36%">QA check</th><th>Developer review</th><th style="width:17%">Developer comments</th><th>Reviewer check</th><th style="width:17%">Reviewer comments</th></tr>
+    ${secs.map(s => `<tr class="sec"><td colspan="6"><b>${esc(s.title)}</b></td></tr>` + s.items.map(i => {
+      const it = d.items[i.id];
+      return `<tr><td class="num">${i.n}</td><td>${esc(i.text)}${it.by === 'rev' ? ' <span class="tag">[added by reviewer]</span>' : ''}</td>
+        <td>${st(it.dev.s)}</td><td class="pre">${esc(it.dev.c)}${it.reply ? `${it.dev.c ? '\n' : ''}<i>Response:</i> ${esc(it.reply)}` : ''}</td>
+        <td>${st(it.rev.s)}</td><td class="pre">${esc(it.rev.c)}</td></tr>`;
+    }).join('')).join('') || '<tr><td colspan="6">No checks selected.</td></tr>'}
+  </table>
+  ${r.comment ? `<h3>Reviewer’s overall comment</h3><p class="pre" style="margin:0">${esc(r.comment)}</p>` : ''}
+
+  ${d.backupOn && d.backup.length ? `<h3>Version backup — existing TRs prior to movement</h3>${tbl(['Object', 'System', 'Dev', 'PreProd', 'Prod'], d.backup.map(b => `<tr><td class="mono">${esc(b.object)}</td><td>${esc(b.system)}</td><td class="mono">${esc(b.dev)}</td><td class="mono">${esc(b.preprod)}</td><td class="mono">${esc(b.prod)}</td></tr>`))}` : ''}
+
+  ${d.pastRounds.length ? `<h3>Earlier review rounds</h3>${tbl(['Round', 'Reviewer', 'Date', 'Effort (h)', 'Findings', 'Comment'], d.pastRounds.map(p => {
+    const flagged = Object.entries(p.items || {}).filter(([, x]) => x.s === 'N');
+    return `<tr><td>${p.round}</td><td>${esc(who(p.review?.revId, p.review?.revName))}</td><td>${fmtDate(p.review?.date)}</td><td>${esc(p.review?.effort)}</td>
+      <td>${flagged.length ? flagged.map(([id, x]) => `<b>${esc(id)}</b>: ${esc(x.c)}${x.reply ? ` <i>→ ${esc(x.reply)}</i>` : ''}`).join('<br>') : '—'}</td><td class="pre">${esc(p.review?.comment)}</td></tr>`;
+  }))}` : ''}
+
+  ${d.history.length ? `<h3>History</h3>${tbl(['When', 'Who', 'Action', 'Note'], d.history.map(x => `<tr><td style="white-space:nowrap">${fmtWhen(x.at)}</td><td>${esc(x.who)}</td><td>${esc(x.action)}</td><td class="pre">${esc(x.note)}</td></tr>`))}` : ''}
+
+  <div class="foot">Generated by Code Review Desk · checklist “${esc(d.template.name)}” v${esc(d.template.version)} · developer fingerprint ${devSealState} · review fingerprint ${revSealState}</div>
+  </div>`;
+}
+
+function wikiMarkup(d) {
+  const h = d.header, r = d.review;
+  const w = s => String(s ?? '').replace(/\r?\n/g, ' ').replace(/\|/g, '/').replace(/([{}[\]])/g, '\\$1').trim() || ' ';
+  const st = s => s ? `${STATUS[s].wiki} ${STATUS[s].code}` : ' ';
+  const out = [];
+  out.push(`h1. Code review — ${w(h.ticket)}${h.title ? ' — ' + w(h.title) : ''}`);
+  out.push(`*Status:* ${STAGES[d.stage].label} · *Round:* ${d.round} · *Checklist:* ${w(d.template.name)} v${w(d.template.version)}`, '');
+  out.push(`||Module|${w(h.module)}||Check performed by (SAP ID)|${w(who(r.revId, r.revName))}|`);
+  out.push(`||Ticket no|${w(h.ticket)}||Review date|${w(fmtDate(r.date))}|`);
+  out.push(`||Object name(s)|${w(d.objects.filter(o => o.name).map(o => o.name).join(', '))}||Review effort (person hours)|${w(totalEffort(d))}|`);
+  out.push(`||Developer SAP ID|${w(who(h.devId, h.devName))}||Verdict|${d.stage === 'approved' ? '(/) Approved' : d.stage === 'changes' ? '(x) Changes requested' : ' '}|`);
+  out.push(`||Creation date|${w(fmtDate(h.created))}||Transport requests|${w(trsOf(d).map(t => t.tr).join(', '))}|`);
+  out.push(`||System/Client (development)|${w(splitList(h.devSystem).join(', '))}||Systems/Clients (import)|${w(splitList(h.importSystem).join(', '))}|`, '');
+  if (h.summary) out.push('h2. Change description', w(h.summary), '');
+  if (trsOf(d).length) {
+    out.push('h2. Transport requests', '||Transport request||Source system/client||Developer note||Reviewer checked||Reviewer note||');
+    trsOf(d).forEach(t => out.push(`|${w(t.tr)}|${w(t.system)}|${w(t.note)}|${t.checked ? '(/) Checked' : ' '}|${w(t.revNote)}|`));
+    out.push('');
+  }
+  out.push('h2. QA checks', '||#||QA check||Developer review||Developer comments||Reviewer check||Reviewer comments||');
+  for (const s of selectedSections(d)) {
+    out.push(`|*${w(s.title)}*| | | | | |`);
+    for (const i of s.items) {
+      const it = d.items[i.id];
+      out.push(`|${i.n}|${w(i.text)}${it.by === 'rev' ? ' _(added by reviewer)_' : ''}|${st(it.dev.s)}|${w([it.dev.c, it.reply && 'Response: ' + it.reply].filter(Boolean).join(' — '))}|${st(it.rev.s)}|${w(it.rev.c)}|`);
+    }
+  }
+  if (r.comment) out.push('', 'h2. Reviewer’s overall comment', w(r.comment));
+  if (d.backupOn && d.backup.length) {
+    out.push('', 'h2. Version backup', '||Object||System||Dev||PreProd||Prod||');
+    d.backup.forEach(b => out.push(`|${w(b.object)}|${w(b.system)}|${w(b.dev)}|${w(b.preprod)}|${w(b.prod)}|`));
+  }
+  if (d.history.length) {
+    out.push('', 'h2. History', '||When||Who||Action||Note||');
+    d.history.forEach(x => out.push(`|${w(fmtWhen(x.at))}|${w(x.who)}|${w(x.action)}|${w(x.note)}|`));
+  }
+  return out.join('\n');
+}
+
+function standaloneHTML(d) {
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Code review ${esc(d.header.ticket)} — ${STAGES[d.stage].label}</title>
+<style>body{margin:24px;background:#fff}${REPORT_CSS}@page{size:A4 landscape;margin:10mm}@media print{body{margin:0}}</style>
+</head><body>
+${reportHTML(d)}
+<script type="application/json" id="crd-data">${JSON.stringify(d).replace(/</g, '\\u003c')}<\/script>
+</body></html>`;
+}
+
+function renderReport() {
+  const d = doc;
+  const back = tabsFor(d).rev ? 'rev' : tabsFor(d).dev ? 'dev' : null;
+  return `
+  ${d.stage === 'approved' ? `<div class="banner ok archive"><span class="bi">✔</span><div><b>Approved — archive it on Confluence</b>
+    <ol><li>Create a page, e.g. <b>CR · ${esc(d.header.ticket)}${d.header.title ? ' · ' + esc(d.header.title) : ''}</b>.</li>
+    <li>Click <b>Copy for Confluence</b> and paste into the page (or <b>Copy wiki markup</b> → Insert › Markup).</li>
+    <li>Attach the <b>archive .html</b> — it shows the review and reopens in this tool if anyone needs to check it.</li></ol></div></div>`
+  : `<div class="banner info archive"><span class="bi">ⓘ</span><div><b>Preview</b>This is how the finished document will look. It is marked ${STAGES[d.stage].stamp} until the reviewer approves it.</div></div>`}
+  <div class="rp-bar">
+    ${back ? `<button class="btn" data-a="tab" data-v="${back}">← Back</button>` : ''}
+    <span class="sp"></span>
+    <button class="btn primary" data-a="copyRich">Copy for Confluence</button>
+    <button class="btn" data-a="copyWiki">Copy wiki markup</button>
+    <button class="btn" data-a="dlHtml">Download archive .html</button>
+    <button class="btn" data-a="print">Print / PDF</button>
+    <button class="btn ghost" data-a="dlJson">Save .json</button>
+  </div>
+  <div class="paper" id="paper">${reportHTML(d)}</div>`;
+}
+
+/* ============================================================ checklist setup */
+function tplStateHtml() {
+  const t = TPL, nChecks = t.sections.reduce((a, s) => a + s.items.length, 0);
+  const counts = `<span class="muted small">${t.sections.length} sections · ${nChecks} checks · ${t.objectTypes.length} object types</span>`;
+  const line = html => `<div class="small muted" style="flex-basis:100%">${html}</div>`;
+  if (BASE.source === 'shared') {
+    const m = shared.tplMeta || {};
+    const stale = store.get('template.stale') ? `<div class="banner info" style="flex-basis:100%;margin-top:6px"><span class="bi">↺</span><div><b>You had earlier local edits</b>They were made against a different checklist, so the shared one is shown.
+      <div style="margin-top:6px"><button class="btn sm" data-a="tplRestoreStale">Restore my edits</button> <button class="btn sm ghost" data-a="tplDropStale">Discard them</button></div></div></div>` : '';
+    const newer = shared.newerTpl ? `<div class="banner warn" style="flex-basis:100%;margin-top:6px"><span class="bi">⚠</span><div><b>Someone published a newer checklist</b>Publishing yours will replace it. Discard your changes to load theirs.</div></div>` : '';
+    if (!tplIsCustom()) return `<span class="pill approved">Shared checklist</span>${counts}${line(`From <b>${esc(shared.name)}</b> › checklist.json${m.publishedBy ? `, published by ${esc(m.publishedBy)}` : ''}${m.publishedAt ? ` on ${fmtWhen(m.publishedAt)}` : ''}. Everyone connected to this folder uses it.`)}${stale}`;
+    return `<span class="pill submitted">Unpublished changes</span>${counts}${line('Only you can see these edits until you <b>Publish to shared folder</b>.')}${newer}${stale}`;
+  }
+  const noShared = sharedOn() && shared.tplExists === false ? line(`The shared folder <b>${esc(shared.name)}</b> has no checklist yet. <b>Publish to shared folder</b> so everyone uses this one.`) : '';
+  if (!tplIsCustom()) return `<span class="pill approved">Built-in checklist</span>${counts}${noShared}`;
+  return `<span class="pill submitted">Customised in this browser</span>${counts}
+    ${noShared || line('Your changes are saved in this browser as you type. To give everyone the same checklist, connect a shared folder and publish it, or use <b>Download tool with this checklist</b>.')}
+    ${tplBasedOnOld() ? `<div class="banner warn" style="flex-basis:100%;margin-top:6px"><span class="bi">⚠</span><div><b>This copy of the tool has a different built-in checklist</b>Your customisation was made on another version. Reset to built-in to use this file’s checklist, or keep yours.</div></div>` : ''}`;
+}
+
+function renderSetup() {
+  const t = TPL;
+  const closed = id => ui.tplCollapsed[id] ?? true;
+  const btns = (act, i, len, extra = '') => `<div class="rowbtns">
+    <button class="icon mv" data-a="${act}Move" ${extra} data-i="${i}" data-d="-1" ${i ? '' : 'disabled'} title="Move up">↑</button>
+    <button class="icon mv" data-a="${act}Move" ${extra} data-i="${i}" data-d="1" ${i < len - 1 ? '' : 'disabled'} title="Move down">↓</button>
+    <button class="icon" data-a="${act}Del" ${extra} data-i="${i}" title="Delete">✕</button></div>`;
+  return `<div class="setup">
+  <section class="card">
+    <h2>Checklist setup</h2>
+    <p class="muted" style="margin:-6px 0 12px">Add or change sections, checks and object types. Reviews that were already sent keep the wording they were sent with.</p>
+    <div id="tplState" class="tplstate">${tplStateHtml()}</div>
+    <div class="grid" style="margin-top:14px">
+      <label class="fld"><span>Checklist name</span><input data-t="name" value="${esc(t.name)}" placeholder="e.g. ABAP Code Review Checklist"></label>
+      <label class="fld"><span>Version</span><input data-t="version" value="${esc(t.version)}" placeholder="e.g. 2026.2"><small>Bump it when you change wording. It is printed on every review.</small></label>
+      <label class="fld"><span>Systems for version backup</span><input class="mono" data-t="__systems" value="${esc(t.systems.join(', '))}" placeholder="e.g. DEV, QAS, PRD"><small>Comma-separated. Leave empty for free text.</small></label>
+    </div>
+    <div class="tools" id="tplActions" style="margin:16px 0 0">${tplActionsHtml()}</div>
+    <details class="how"><summary>How do I share it with my team?</summary>
+      <p><b>Best:</b> connect the team’s shared Teams folder on the home page and <b>Publish to shared folder</b>. Everyone connected picks it up automatically.</p>
+      <p><b>Without a shared folder:</b> “Download tool with this checklist” saves a new <code>Code Review Desk.html</code> with your checklist built in. Replace the shared copy with it.</p>
+      <p><b>Alternative:</b> export the checklist <code>.json</code>. Colleagues import it via <b>Open review file</b> or <b>Import checklist…</b>. It is then kept in their browser.</p>
+      <p class="muted">A reviewer with an older checklist still sees exactly the checks you sent, because each review file carries its own wording.</p>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>Object types<span class="aside">Linked sections are suggested, never enforced</span></h2>
+    <div class="types">${t.objectTypes.map((o, i) => `<div class="trow">
+      <input data-t="objectTypes.${i}.label" value="${esc(o.label)}" placeholder="e.g. Workflow / BRF+ rule">
+      <div class="chips">${t.sections.map(s => `<button class="tchip" aria-pressed="${o.secs.includes(s.id)}" data-a="tplTypeSec" data-i="${i}" data-s="${esc(s.id)}">${esc(s.title || 'Untitled section')}</button>`).join('') || '<span class="muted small">Add a section first.</span>'}</div>
+      ${btns('tplType', i, t.objectTypes.length)}
+    </div>`).join('') || '<p class="muted">No object types yet.</p>'}</div>
+    <button class="btn sm" data-a="tplAddType" style="margin-top:8px">＋ Add object type</button>
+  </section>
+
+  <section class="card">
+    <h2>Sections and checks<span class="aside"><button class="btn sm ghost" data-a="tplExpand" data-v="0">Expand all</button><button class="btn sm ghost" data-a="tplExpand" data-v="1">Collapse all</button></span></h2>
+    ${t.sections.map((s, si) => `<div class="sec${closed(s.id) ? ' closed' : ''}">
+      <div class="sec-h" data-a="tplToggle" data-s="${esc(s.id)}">
+        <span class="chev">▾</span>
+        <input class="sec-title" data-t="sections.${si}.title" value="${esc(s.title)}" placeholder="Section name">
+        <span class="cnt">${s.items.length} check${s.items.length === 1 ? '' : 's'}</span>
+        ${btns('tplSec', si, t.sections.length)}
+      </div>
+      <div class="sec-b">
+        ${s.items.map((it, ii) => `<div class="titem">
+          <span class="num">${ii + 1}</span>
+          <textarea rows="1" data-t="sections.${si}.items.${ii}.text" placeholder="Describe the check, e.g. “Selection screen inputs are validated in AT SELECTION-SCREEN.”">${esc(it.text)}</textarea>
+          ${btns('tplItem', ii, s.items.length, `data-si="${si}"`)}
+        </div>`).join('')}
+        <div class="titem add"><button class="btn sm" data-a="tplAddItem" data-i="${si}">＋ Add check</button></div>
+      </div>
+    </div>`).join('')}
+    <button class="btn sm" data-a="tplAddSec" style="margin-top:4px">＋ Add section</button>
+  </section>
+  </div>`;
+}
+function tplActionsHtml() {
+  const sharedBase = BASE.source === 'shared';
+  return `${sharedOn() ? `<button class="btn primary" data-a="tplPublish" ${sharedBase && !tplIsCustom() ? 'disabled' : ''}>Publish to shared folder</button>` : ''}
+    <button class="btn${sharedOn() ? '' : ' primary'}" data-a="tplBake">Download tool with this checklist</button>
+    <button class="btn" data-a="tplExport">Export checklist .json</button>
+    <button class="btn" data-a="openFile">Import checklist…</button>
+    <span class="sp"></span>
+    <button class="btn ghost" data-a="tplReset" ${tplIsCustom() ? '' : 'disabled'}>${sharedBase ? 'Discard unpublished changes' : 'Reset to built-in'}</button>`;
+}
+function autoGrow(el) { el.style.height = 'auto'; el.style.height = (el.scrollHeight + 2) + 'px'; }
+const moveIn = (arr, i, d) => { const j = i + d; if (j < 0 || j >= arr.length) return false; [arr[i], arr[j]] = [arr[j], arr[i]]; return true; };
+function tplChanged() { saveTpl(); render(); }
+function importTpl(raw, name) {
+  if (!raw || !Array.isArray(raw.sections)) return toast(`“${name}” doesn’t contain a checklist.`, true);
+  const t = normalizeTpl(raw);
+  const n = t.sections.reduce((a, s) => a + s.items.length, 0);
+  confirmDlg('Use this checklist?', `“${t.name}” v${t.version}: ${t.sections.length} sections, ${n} checks, ${t.objectTypes.length} object types. It replaces the checklist in this browser. Reviews already sent are not affected.`, 'Use checklist')
+    .then(ok => {
+      if (!ok) return;
+      TPL = t;
+      store.set('template', { tpl: TPL, basedOn: BASE.hash, savedAt: nowIso() });
+      saveTpl(); view = 'checklist'; render(); toast('Checklist imported.');
+    });
+}
+function bakedHTML() {
+  const open = '<script type="application/json" id="crd-template">';
+  const a = BASE_HTML.indexOf(open), b = BASE_HTML.indexOf('</' + 'script>', a);
+  return BASE_HTML.slice(0, a + open.length) + '\n' + JSON.stringify(TPL, null, 1).replace(/</g, '\\u003c') + '\n' + BASE_HTML.slice(b);
+}
+
+/* ============================================================ render loop */
+function render() {
+  renderTop();
+  if (!doc && view !== 'home' && view !== 'checklist') view = 'home';
+  if (doc && view !== 'home' && view !== 'checklist' && !tabsFor(doc)[view]) view = 'report';
+  $('#main').innerHTML = view === 'home' ? renderHome() : view === 'checklist' ? renderSetup() : view === 'dev' ? renderDev() : view === 'rev' ? renderRev() : renderReport();
+  $$('[data-ind]').forEach(el => el.indeterminate = true);
+  $$('.titem textarea').forEach(autoGrow);
+  applyFilter();
+}
+function refreshRail() {
+  const r = $('#rail'); if (!r) return;
+  r.innerHTML = view === 'dev' ? devRail() : view === 'rev' ? revRail() : '';
+}
+function applyFilter() {
+  const box = $('#checks'); if (!box) return;
+  const q = ui.filter.trim().toLowerCase();
+  box.classList.toggle('filtering', !!q);
+  $$('.item', box).forEach(el => el.hidden = !!q && !el.dataset.q.includes(q));
+  $$('.sec', box).forEach(sec => sec.hidden = !!q && !$$('.item', sec).some(i => !i.hidden));
+}
+function touched() {
+  if (!doc) return;
+  doc.updatedAt = nowIso();
+  if (view === 'dev' && doc.stage === 'submitted') { doc.stage = 'draft'; renderTop(); }
+  saveLocal();
+  refreshRail();
+}
+
+/* ============================================================ actions */
+const A = {
+  home() { view = 'home'; render(); },
+  newReview() { doc = newDoc(); ui.filter = ''; ui.selOnly = false; ui.collapsed = {}; view = 'dev'; render(); window.scrollTo(0, 0); },
+  openFile() { $('#fileIn').value = ''; $('#fileIn').click(); },
+  theme() {
+    const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next; store.set('theme', next);
+  },
+  tab(el) { if (!doc) return; view = el.dataset.v; render(); window.scrollTo(0, 0); },
+  async openDraft(el) {
+    const d = store.get('draft.' + el.dataset.id); if (!d) return;
+    if (sharedOn() && d.shared?.file) {
+      try {
+        const cur = await readShared(d.shared.file);
+        if (cur.id === d.id && cur.updatedAt !== d.shared.base) {
+          const c = await choiceDlg('The shared folder has a newer version', `${cur.header?.ticket || 'This review'} was saved to the shared folder ${fmtWhen(cur.updatedAt)} (“${STAGES[cur.stage]?.label || cur.stage}”). This browser’s copy is older.`,
+            [{ label: 'Keep my local copy', value: 'local' }, { label: 'Open shared version', value: 'shared', primary: true }]);
+          if (!c) return;
+          if (c === 'shared') { cur.shared = { file: d.shared.file, base: cur.updatedAt }; return openDocData(cur); }
+        }
+      } catch { /* not in the folder any more: use the local copy */ }
+    }
+    doc = migrate(d); ui.collapsed = {}; view = { draft: 'dev', submitted: 'rev', changes: 'dev', approved: 'report' }[doc.stage] || 'dev'; render(); window.scrollTo(0, 0);
+  },
+  sharedConnect() {
+    if (!window.showDirectoryPicker) return toast('This browser can’t use folders. Open the tool in Microsoft Edge or Chrome.', true);
+    openDlg(`<h2>Connect a shared Teams folder</h2>
+      <ol class="steps">
+        <li>In Teams, open the channel’s <b>Files</b> (or the SharePoint library) and click <b>Sync</b> — or <b>Add shortcut to My files</b>. It then appears in File Explorer under your company’s OneDrive.</li>
+        <li>Create a folder there for code reviews, e.g. <b>Code Reviews</b>, if the team doesn’t have one yet.</li>
+        <li>Choose that folder below. Everyone on the team connects to the same one.</li>
+      </ol>
+      <p class="muted small">The tool keeps <code>checklist.json</code>, a <code>reviews</code> folder and an <code>archive</code> folder inside it. Your browser will ask to allow editing — that’s expected.</p>
+      <div class="dlg-act"><button class="btn" data-a="closeDlg">Cancel</button><button class="btn primary" data-a="sharedPick">Choose folder…</button></div>`);
+  },
+  async sharedPick() {
+    let h;
+    try { h = await window.showDirectoryPicker({ id: 'crd-shared', mode: 'readwrite' }); }
+    catch (e) { if (e.name !== 'AbortError') toast(e.message, true); return; }
+    closeDlg();
+    await connectHandle(h);
+  },
+  async sharedReconnect() {
+    if (!shared.handle) return;
+    try {
+      const p = await shared.handle.requestPermission({ mode: 'readwrite' });
+      if (p === 'granted') await sharedStart(); else toast('Access to the folder was not allowed.', true);
+    } catch (e) { toast(e.message, true); }
+  },
+  sharedRetry() { sharedStart(); },
+  sharedRefresh() { sharedRefresh(); },
+  async sharedDisconnect() {
+    if (!await confirmDlg('Disconnect the shared folder?', 'Nothing in the folder is deleted. This browser keeps a copy of the current checklist, and you can reconnect any time.', 'Disconnect')) return;
+    await idb.del('folder');
+    Object.assign(shared, { handle: null, name: '', status: 'off', reviews: [], scannedAt: '', error: '', tplExists: null, tplMeta: {}, newerTpl: false });
+    BASE = { tpl: normalizeTpl(BUILTIN_TPL), hash: BUILTIN_HASH, source: 'builtin', mod: 0 };
+    if (tplIsCustom()) store.set('template', { tpl: TPL, basedOn: BUILTIN_HASH, savedAt: nowIso() });
+    render();
+  },
+  async sharedOpen(el) {
+    const file = el.dataset.file;
+    let data;
+    try { data = await readShared(file); } catch (e) { return toast(`Couldn’t open ${file}: ${e.message}`, true); }
+    const local = store.get('draft.' + data.id);
+    if (local && local.shared?.base === data.updatedAt && (local.updatedAt || '') > (data.updatedAt || '')) {
+      const c = await choiceDlg('You have unsaved edits', `This browser has changes to ${data.header?.ticket || 'this review'} from ${fmtWhen(local.updatedAt)} that were never saved to the shared folder.`,
+        [{ label: 'Open shared version', value: 'shared' }, { label: 'Continue my edits', value: 'local', primary: true }]);
+      if (!c) return;
+      if (c === 'local') return openDocData(local);
+    }
+    data.shared = { file, base: data.updatedAt };
+    openDocData(data);
+  },
+  sharedStage(el) { ui.sharedStage = el.dataset.v; paintShared(); },
+  copyMsg() { copyText($('#msgText')?.textContent || '', 'Message copied — paste it in Teams.'); },
+  dlgPick(el) { const r = dlgResolve; dlgResolve = null; closeDlg(); r?.(el.dataset.v); },
+  async tplPublish() {
+    if (!sharedOn()) return;
+    try {
+      let cur = null;
+      try { const f = await (await shared.handle.getFileHandle(CHECKLIST_FILE)).getFile(); cur = { mod: f.lastModified, raw: JSON.parse(await f.text()) }; }
+      catch (e) { if (e.name !== 'NotFoundError' && !(e instanceof SyntaxError)) throw e; }
+      const changedUnderUs = cur && !(BASE.source === 'shared' && cur.mod === BASE.mod) && tplHash(normalizeTpl(cur.raw.tpl || cur.raw)) !== BASE.hash;
+      const sameVersion = BASE.source === 'shared' && TPL.version === BASE.tpl.version;
+      const ok = changedUnderUs
+        ? await confirmDlg('The shared checklist has changed', `${cur.raw.publishedBy || 'Someone'} published a different version${cur.raw.publishedAt ? ' on ' + fmtWhen(cur.raw.publishedAt) : ''} since you loaded it. Publishing replaces it with yours.`, 'Publish anyway')
+        : await confirmDlg('Publish checklist?', `Everyone connected to “${shared.name}” will use “${TPL.name}” v${TPL.version} for new reviews. Reviews already sent keep their wording.${sameVersion ? ' The version number is unchanged — consider bumping it first.' : ''}`, 'Publish');
+      if (!ok) return;
+      const body = { app: 'code-review-desk-checklist', schema: 1, publishedAt: nowIso(), publishedBy: myId(), tpl: TPL };
+      await writeText('', CHECKLIST_FILE, JSON.stringify(body, null, 1));
+      const f = await (await shared.handle.getFileHandle(CHECKLIST_FILE)).getFile();
+      store.del('template'); store.del('template.stale');
+      adoptSharedTpl(TPL, f.lastModified);
+      Object.assign(shared, { tplExists: true, tplMeta: { publishedAt: body.publishedAt, publishedBy: body.publishedBy }, newerTpl: false });
+      render(); toast('Checklist published to the shared folder.');
+    } catch (e) { toast(`Couldn’t publish: ${e.message}`, true); }
+  },
+  tplRestoreStale() { const st = store.get('template.stale'); store.del('template.stale'); if (st?.tpl) { TPL = normalizeTpl(st.tpl); store.set('template', { tpl: TPL, basedOn: BASE.hash, savedAt: nowIso() }); } render(); },
+  tplDropStale() { store.del('template.stale'); render(); },
+  async delDraft(el) {
+    if (!await confirmDlg('Remove from this browser?', 'This only forgets the local copy. Any files you saved are not affected.', 'Remove')) return;
+    store.del('draft.' + el.dataset.id); if (doc?.id === el.dataset.id) doc = null; render();
+  },
+
+  addObj() { doc.objects.push({ name: '', type: '', note: '' }); touched(); render(); },
+  delObj(el) { doc.objects.splice(+el.dataset.i, 1); touched(); render(); },
+  toggleBackup(el) {
+    doc.backupOn = el.checked;
+    if (doc.backupOn && !doc.backup.length) doc.objects.filter(o => o.name).forEach(o => doc.backup.push({ object: o.name, system: TPL.systems[0] || '', dev: '', preprod: '', prod: '' }));
+    if (doc.backupOn && !doc.backup.length) doc.backup.push({ object: '', system: TPL.systems[0] || '', dev: '', preprod: '', prod: '' });
+    touched(); render();
+  },
+  addBk() { doc.backup.push({ object: '', system: doc.backup.at(-1)?.system || TPL.systems[0] || '', dev: '', preprod: '', prod: '' }); touched(); render(); },
+  delBk(el) { doc.backup.splice(+el.dataset.i, 1); touched(); render(); },
+
+  selItem(el) { const it = ensureItem(el.dataset.id); it.sel = el.checked; touched(); render(); },
+  selSec(el) {
+    const s = sectionsFor(doc).find(x => x.id === el.dataset.s);
+    s.items.forEach(i => ensureItem(i.id).sel = el.checked);
+    ui.collapsed[s.id] = false; touched(); render();
+  },
+  toggleSec(el, e) {
+    if (e.target.closest('input')) return;
+    const sec = el.closest('.sec'); const closed = !sec.classList.contains('closed');
+    sec.classList.toggle('closed', closed); ui.collapsed[el.dataset.s] = closed;
+  },
+  selOnly(el) { ui.selOnly = el.checked; render(); },
+  tickSug() {
+    const sug = suggestedSecs(doc);
+    sectionsFor(doc).filter(s => sug.has(s.id)).forEach(s => { s.items.forEach(i => ensureItem(i.id).sel = true); ui.collapsed[s.id] = false; });
+    touched(); render(); toast('Ticked every check in the suggested sections — untick the ones that don’t apply.');
+  },
+  expandAll() { sectionsFor(doc).forEach(s => ui.collapsed[s.id] = false); render(); },
+  collapseAll() { sectionsFor(doc).forEach(s => ui.collapsed[s.id] = true); render(); },
+  devS(el) { const it = doc.items[el.dataset.id]; it.dev.s = it.dev.s === el.dataset.v ? '' : el.dataset.v; touched(); render(); },
+
+  revS(el) { const it = doc.items[el.dataset.id]; it.rev.s = it.rev.s === el.dataset.v ? '' : el.dataset.v; touched(); render(); },
+  revFilter(el) { ui.revFilter = el.dataset.v; render(); },
+  verdict(el) { doc.review.verdict = doc.review.verdict === el.dataset.v ? '' : el.dataset.v; touched(); render(); },
+  addMissed() {
+    const secs = sectionsFor(doc).map(s => ({ ...s, items: s.items.filter(i => !doc.items[i.id]?.sel) })).filter(s => s.items.length);
+    openDlg(`<h2>Add checks the developer missed</h2>
+      <p class="muted">Checks you add are marked “added by reviewer”. Review them like any other; if you request changes, the developer will self-review them too.</p>
+      <input type="search" placeholder="Filter…" oninput="const q=this.value.toLowerCase();document.querySelectorAll('#dlg .pick').forEach(p=>p.hidden=!p.textContent.toLowerCase().includes(q))">
+      <div class="dlg-list">${secs.map(s => `<h4>${esc(s.title)}</h4>${s.items.map(i => `<label class="pick"><input type="checkbox" value="${i.id}"><span class="num">${i.n}</span><span>${esc(i.text)}</span></label>`).join('')}`).join('') || '<p>Every check is already included.</p>'}</div>
+      <div class="dlg-act"><button class="btn" data-a="closeDlg">Cancel</button><button class="btn primary" data-a="confirmMissed">Add selected</button></div>`);
+  },
+  confirmMissed() {
+    const ids = $$('#dlg .pick input:checked').map(x => x.value);
+    ids.forEach(id => { doc.items[id] = { sel: true, by: 'rev', addedRound: doc.round, dev: { s: '', c: '' }, rev: { s: '', c: '' }, reply: '' }; });
+    snapshot(doc); closeDlg(); touched(); render();
+    if (ids.length) toast(`Added ${ids.length} check${ids.length > 1 ? 's' : ''}.`);
+  },
+  unMissed(el) { delete doc.items[el.dataset.id]; snapshot(doc); touched(); render(); },
+  closeDlg() { closeDlg(); },
+  addTr() {
+    doc.transports.push({ ...newTr(), system: doc.transports.at(-1)?.system || '' });
+    touched(); render(); $(`[data-trin="${doc.transports.length - 1}"]`)?.focus();
+  },
+  delTr(el) { doc.transports.splice(+el.dataset.i, 1); touched(); render(); },
+  trCheck(el) {
+    doc.transports[+el.dataset.i].checked = el.checked;
+    el.closest('.tritem').classList.toggle('done', el.checked);
+    const trs = trsOf(doc); $('#trCount').textContent = `${trs.filter(t => t.checked).length} / ${trs.length} checked`;
+    touched();
+  },
+  copyTr(el) { const t = doc.transports[+el.dataset.i].tr; copyText(t, 'Copied ' + t); },
+  copyTrs() { copyText(trsOf(doc).map(t => t.tr).join('\n'), `Copied ${trsOf(doc).length} TR numbers`); },
+  tagDel(el) {
+    const path = el.dataset.p, vals = splitList(getPath(doc, path));
+    vals.splice(+el.dataset.i, 1); setPath(doc, path, vals.join(', '));
+    paintTags(path); touched(); document.querySelector(`[data-tagin="${path}"]`)?.focus();
+  },
+
+  setup() { view = 'checklist'; render(); window.scrollTo(0, 0); },
+  tplToggle(el, e) {
+    if (e.target.closest('input')) return;
+    const sec = el.closest('.sec'); const c = !sec.classList.contains('closed');
+    sec.classList.toggle('closed', c); ui.tplCollapsed[el.dataset.s] = c;
+    if (!c) $$('.titem textarea', sec).forEach(autoGrow);
+  },
+  tplExpand(el) { TPL.sections.forEach(s => ui.tplCollapsed[s.id] = el.dataset.v === '1'); render(); },
+  tplAddType() {
+    TPL.objectTypes.push({ id: 'T' + uid().slice(-7).toUpperCase(), label: '', secs: [] });
+    tplChanged(); $$('.trow input').at(-1)?.focus();
+  },
+  tplTypeMove(el) { if (moveIn(TPL.objectTypes, +el.dataset.i, +el.dataset.d)) tplChanged(); },
+  async tplTypeDel(el) {
+    const o = TPL.objectTypes[+el.dataset.i];
+    if (o.label.trim() && !await confirmDlg('Delete object type?', `“${o.label}” will no longer be offered. Reviews that already use it keep its name.`, 'Delete')) return;
+    TPL.objectTypes.splice(+el.dataset.i, 1); tplChanged();
+  },
+  tplTypeSec(el) {
+    const o = TPL.objectTypes[+el.dataset.i], id = el.dataset.s;
+    o.secs = o.secs.includes(id) ? o.secs.filter(x => x !== id) : TPL.sections.map(s => s.id).filter(x => x === id || o.secs.includes(x));
+    saveTpl(); el.setAttribute('aria-pressed', o.secs.includes(id));
+  },
+  tplAddSec() {
+    openDlg(`<h2>New section</h2>
+      <label class="fld"><span>Section name</span><input id="newSecName" placeholder="e.g. Workflow / BRF+"></label>
+      <div class="dlg-act"><button class="btn" data-a="closeDlg">Cancel</button><button class="btn primary" data-a="tplAddSecGo">Add section</button></div>`);
+    const inp = $('#newSecName'); inp.focus();
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') A.tplAddSecGo(); });
+  },
+  tplAddSecGo() {
+    const title = ($('#newSecName')?.value || '').trim();
+    if (!title) return $('#newSecName')?.focus();
+    const id = newSectionId(title);
+    TPL.sections.push({ id, title, next: 2, items: [{ id: `${id}-01`, text: '' }] });
+    ui.tplCollapsed[id] = false; closeDlg(); tplChanged();
+    $$('.sec').at(-1)?.querySelector('textarea')?.focus();
+  },
+  tplSecMove(el) { if (moveIn(TPL.sections, +el.dataset.i, +el.dataset.d)) tplChanged(); },
+  async tplSecDel(el) {
+    const s = TPL.sections[+el.dataset.i];
+    if (!await confirmDlg('Delete section?', `“${s.title || 'Untitled section'}” and its ${s.items.length} checks will be removed from the checklist. Reviews already sent are not affected.`, 'Delete section')) return;
+    TPL.sections.splice(+el.dataset.i, 1);
+    TPL.objectTypes.forEach(o => o.secs = o.secs.filter(x => x !== s.id));
+    tplChanged();
+  },
+  tplAddItem(el) {
+    const si = +el.dataset.i, s = TPL.sections[si];
+    s.items.push({ id: `${s.id}-${String(s.next).padStart(2, '0')}`, text: '' });
+    s.next++; ui.tplCollapsed[s.id] = false; tplChanged();
+    $(`[data-t="sections.${si}.items.${s.items.length - 1}.text"]`)?.focus();
+  },
+  tplItemMove(el) { if (moveIn(TPL.sections[+el.dataset.si].items, +el.dataset.i, +el.dataset.d)) tplChanged(); },
+  async tplItemDel(el) {
+    const items = TPL.sections[+el.dataset.si].items, it = items[+el.dataset.i];
+    if (it.text.trim() && !await confirmDlg('Delete check?', `“${it.text.slice(0, 140)}${it.text.length > 140 ? '…' : ''}”`, 'Delete')) return;
+    items.splice(+el.dataset.i, 1); tplChanged();
+  },
+  async tplExport() {
+    const body = JSON.stringify({ app: 'code-review-desk-checklist', schema: 1, exportedAt: nowIso(), tpl: TPL }, null, 1);
+    if (await download(`checklist_${safeName(TPL.name)}_v${safeName(TPL.version)}.json`, body, 'application/json')) toast('Checklist exported.');
+  },
+  async tplBake() {
+    if (await download('Code Review Desk.html', bakedHTML(), 'text/html')) toast('Saved — share this copy of the tool with your team.');
+  },
+  async tplReset() {
+    const sharedBase = BASE.source === 'shared';
+    if (!await confirmDlg(sharedBase ? 'Discard unpublished changes?' : 'Reset to the built-in checklist?', 'Your changes in this browser will be discarded. Export the checklist first if you want to keep them.', sharedBase ? 'Discard' : 'Reset')) return;
+    store.del('template');
+    if (sharedBase && shared.newerTpl) { BASE.mod = 0; shared.newerTpl = false; TPL = structuredClone(BASE.tpl); await syncSharedTpl(true); }
+    else TPL = structuredClone(BASE.tpl);
+    render(); toast(sharedBase ? 'Showing the shared checklist.' : 'Back to the built-in checklist.');
+  },
+  dlgYes() { const r = dlgResolve; dlgResolve = null; closeDlg(); r?.(true); },
+  dlgNo() { const r = dlgResolve; dlgResolve = null; closeDlg(); r?.(false); },
+
+  async saveDraft() {
+    const d = structuredClone(doc); if (d.stage !== 'changes') d.stage = d.stage === 'submitted' ? 'submitted' : 'draft';
+    snapshot(d); stampTypeLabels(d); tidyTransports(d); d.template = { name: TPL.name, version: TPL.version };
+    const how = await persistReview(d, d.stage === 'changes' ? 'in-rework' : 'draft');
+    if (how) {
+      doc.checklist = d.checklist; doc.shared = d.shared; rememberDev(); saveLocal(true);
+      toast(how === 'shared' ? `Draft saved to ${shared.name}.` : 'Draft saved.');
+    }
+  },
+  async submit() {
+    if (!devChecks(doc).every(c => c.ok)) return toast('Finish the list on the right first.', true);
+    const d = structuredClone(doc), at = nowIso(), resub = d.stage === 'changes';
+    if (resub) {
+      d.pastRounds.push({
+        round: d.round, review: structuredClone(d.review),
+        items: Object.fromEntries(selItems(d).filter(([, i]) => i.rev.s || i.rev.c).map(([id, i]) => [id, { s: i.rev.s, c: i.rev.c, reply: i.reply }])),
+      });
+      for (const i of Object.values(d.items)) { if (i.rev.s === 'N') i.rev = { s: '', c: '' }; i.reply = ''; }
+      d.review = { revId: d.review.revId, revName: d.review.revName, date: '', effort: '', verdict: '', comment: '' };
+      d.round++; d.seals.rev = '';
+    }
+    d.stage = 'submitted'; d.updatedAt = at;
+    stampTypeLabels(d); tidyTransports(d); d.template = { name: TPL.name, version: TPL.version };
+    snapshot(d);
+    d.history.push({ at, who: devWho(d), role: 'Developer', action: resub ? `Resubmitted — round ${d.round}` : 'Submitted for review', note: '' });
+    d.seals.dev = devSealOf(d);
+    const name = fileName(d, 'for-review');
+    const how = await persistReview(d, 'for-review');
+    if (!how) return;
+    doc = d; rememberDev(); saveLocal(true); render();
+    const reviewer = who(d.assignee.id, d.assignee.name);
+    openDlg(how === 'shared'
+      ? `<h2>Sent for review</h2>
+        <p>Saved to <b>${esc(shared.name)}</b> › reviews › <code>${esc(d.shared.file)}</code>. It shows up under <b>Needs my review</b> for ${reviewer ? esc(reviewer) : 'reviewers'} once OneDrive has synced.</p>
+        ${teamsMsgHtml(`Code review ready: ${d.header.ticket}${d.header.title ? ' — ' + d.header.title : ''}${d.round > 1 ? ` (round ${d.round})` : ''}. It's in Code Review Desk under "Needs my review".`)}
+        <div class="dlg-act"><button class="btn" data-a="copyMsg">Copy message</button><button class="btn primary" data-a="closeDlg">Done</button></div>`
+      : `<h2>Saved for review</h2>
+      <p>Send <code>${esc(name)}</code> to your reviewer (Teams, email, shared drive).</p>
+      <p class="muted">They open <b>Code Review Desk.html</b>, click <b>Open review file</b> and pick it. If they request changes you’ll get a file back — open it the same way.</p>
+      <div class="dlg-act"><button class="btn primary" data-a="closeDlg">Done</button></div>`);
+  },
+  async saveProgress() {
+    const d = structuredClone(doc);
+    const how = await persistReview(d, 'review-in-progress');
+    if (how) { doc.shared = d.shared; rememberRev(); saveLocal(true); toast(how === 'shared' ? `Progress saved to ${shared.name}.` : 'Progress saved.'); }
+  },
+  async finish() {
+    if (!revChecks(doc).filter(c => !c.soft).every(c => c.ok)) return toast('Finish the list on the right first.', true);
+    const nN = selItems(doc).filter(([, i]) => i.rev.s === 'N').length;
+    if (doc.review.verdict === 'approve' && nN && !await confirmDlg('Approve with findings?', `${nN} check${nN > 1 ? 's are' : ' is'} marked Not followed. Approve anyway?`, 'Approve anyway')) return;
+    const d = structuredClone(doc), at = nowIso();
+    d.stage = d.review.verdict === 'approve' ? 'approved' : 'changes'; d.updatedAt = at;
+    snapshot(d);
+    d.history.push({ at, who: revWho(d), role: 'Reviewer', action: d.stage === 'approved' ? `Approved — round ${d.round}` : `Changes requested — round ${d.round}`, note: d.review.comment });
+    d.seals.rev = revSealOf(d);
+    const name = fileName(d, d.stage === 'approved' ? 'approved' : 'changes-requested');
+    const how = await persistReview(d, d.stage === 'approved' ? 'approved' : 'changes-requested');
+    if (!how) return;
+    const archived = how === 'shared' && d.stage === 'approved' ? await writeArchive(d) : '';
+    doc = d; rememberRev(); saveLocal(true); view = 'report'; render(); window.scrollTo(0, 0);
+    const title = `${d.header.ticket}${d.header.title ? ' — ' + d.header.title : ''}`;
+    const nFind = selItems(d).filter(([, i]) => i.rev.s === 'N').length;
+    if (how === 'shared') return openDlg(d.stage === 'approved'
+      ? `<h2>Review approved</h2><p>Saved to <b>${esc(shared.name)}</b>.${archived ? ` Archive copy: <b>archive</b> › <code>${esc(archived)}</code> — attach it on Confluence.` : ''}</p>
+        ${teamsMsgHtml(`Code review approved: ${title} (round ${d.round}).${archived ? ` Archive: ${shared.name}/archive/${archived}` : ''}`)}
+        <div class="dlg-act"><button class="btn" data-a="copyMsg">Copy message</button><button class="btn primary" data-a="closeDlg">Done</button></div>`
+      : `<h2>Changes requested</h2><p>Saved to <b>${esc(shared.name)}</b>. It shows up for ${esc(devWho(d))} under <b>Changes requested on my work</b>.</p>
+        ${teamsMsgHtml(`Changes requested on ${title} (round ${d.round}): ${nFind} finding${nFind === 1 ? '' : 's'}. It's in Code Review Desk under "Changes requested on my work".`)}
+        <div class="dlg-act"><button class="btn" data-a="copyMsg">Copy message</button><button class="btn primary" data-a="closeDlg">Done</button></div>`);
+    openDlg(d.stage === 'approved'
+      ? `<h2>Review approved</h2><p>Saved <code>${esc(name)}</code>. Send it back to ${esc(devWho(d))}.</p><p class="muted">Whoever archives it can use <b>Copy for Confluence</b> and <b>Download archive .html</b> on this page.</p><div class="dlg-act"><button class="btn primary" data-a="closeDlg">Done</button></div>`
+      : `<h2>Changes requested</h2><p>Saved <code>${esc(name)}</code>. Send it back to ${esc(devWho(d))}. They open it, fix the flagged checks and resubmit.</p><div class="dlg-act"><button class="btn primary" data-a="closeDlg">Done</button></div>`);
+  },
+
+  print() { window.print(); },
+  async copyRich() {
+    const html = `<style>${REPORT_CSS}</style>` + reportHTML(doc);
+    const paper = $('#paper');
+    try {
+      await navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([html], { type: 'text/html' }),
+        'text/plain': new Blob([paper.innerText], { type: 'text/plain' }),
+      })]);
+      toast('Copied — paste into the Confluence page.');
+    } catch {
+      const range = document.createRange(); range.selectNodeContents(paper);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      const ok = document.execCommand('copy'); sel.removeAllRanges();
+      toast(ok ? 'Copied — paste into the Confluence page.' : 'Copy was blocked — select the document and press Ctrl+C.', !ok);
+    }
+  },
+  async copyWiki() {
+    const text = wikiMarkup(doc);
+    try { await navigator.clipboard.writeText(text); toast('Wiki markup copied — in Confluence use Insert › Markup.'); }
+    catch {
+      const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand('copy'); ta.remove();
+      toast(ok ? 'Wiki markup copied.' : 'Copy was blocked by the browser.', !ok);
+    }
+  },
+  async dlHtml() { if (await download(fileName(doc, doc.stage === 'approved' ? 'code-review' : STAGES[doc.stage].stamp.toLowerCase().replace(/\s+/g, '-'), 'html'), standaloneHTML(doc), 'text/html')) toast('Archive saved.'); },
+  async dlJson() { if (await download(fileName(doc, doc.stage === 'approved' ? 'approved' : doc.stage), JSON.stringify(doc, null, 1), 'application/json')) toast('Saved.'); },
+};
+
+/* ============================================================ wiring */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]');
+  if (!el || el.disabled) return;
+  const fn = A[el.dataset.a];
+  if (fn) fn(el, e);
+});
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.dataset.f) { ui.filter = el.value; applyFilter(); return; }
+  if (el.dataset.sq) { ui.sharedQ = el.value; paintShared(); return; }
+  if (el.dataset.me) { store.set('whoami', el.value.trim().toUpperCase()); paintShared(); renderTop(); return; }
+  if (el.dataset.t) { if (el.dataset.t === '__systems') TPL.systems = el.value.split(',').map(x => x.trim()).filter(Boolean); else setPath(TPL, el.dataset.t, el.value); saveTpl(); if (el.tagName === 'TEXTAREA') autoGrow(el); return; }
+  const p = el.dataset.b;
+  if (!p || !doc) return;
+  setPath(doc, p, el.value);
+  touched();
+  if (el.dataset.rr) render();
+});
+document.addEventListener('keydown', e => {
+  const inp = e.target.closest?.('[data-tagin]'); if (!inp) return;
+  if (e.key === 'Enter' || e.key === ',' || e.key === ';') { e.preventDefault(); commitTag(inp); }
+  else if (e.key === 'Backspace' && !inp.value) {
+    const path = inp.dataset.tagin, vals = splitList(getPath(doc, path));
+    if (vals.length) { vals.pop(); setPath(doc, path, vals.join(', ')); paintTags(path); touched(); }
+  }
+});
+document.addEventListener('focusin', e => {
+  if (!e.target.dataset?.trsys || !doc) return;
+  const opts = [...new Set([...splitList(doc.header.devSystem), ...store.get('sysHistory', [])])];
+  $('#dl-src').innerHTML = opts.map(x => `<option value="${esc(x)}">`).join('');
+});
+document.addEventListener('paste', e => {
+  const inp = e.target.closest?.('[data-trin]'); if (!inp || !doc) return;
+  const list = splitList(e.clipboardData?.getData('text') || '');
+  if (list.length < 2) return;
+  e.preventDefault();
+  const i = +inp.dataset.trin, sys = doc.transports[i].system;
+  doc.transports[i].tr = list[0];
+  doc.transports.splice(i + 1, 0, ...list.slice(1).map(tr => ({ ...newTr(), tr, system: sys })));
+  touched(); render(); toast(`Added ${list.length} transports`);
+});
+document.addEventListener('focusout', e => { if (e.target.dataset?.tagin) commitTag(e.target); });
+document.addEventListener('paste', e => {
+  const inp = e.target.closest?.('[data-tagin]'); if (!inp) return;
+  const text = e.clipboardData?.getData('text') || '';
+  if (/[\s,;]/.test(text.trim())) { e.preventDefault(); inp.value = text; commitTag(inp); }
+});
+document.addEventListener('mousedown', e => { if (e.target.classList?.contains('tags')) { e.preventDefault(); $('.tag-in', e.target).focus(); } });
+$('#fileIn').addEventListener('change', e => loadFile(e.target.files[0]));
+$('#dlg').addEventListener('close', () => { if (dlgResolve) { const r = dlgResolve; dlgResolve = null; r(false); } });
+document.addEventListener('dragover', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { e.preventDefault(); document.body.classList.add('dragging'); } });
+document.addEventListener('dragleave', e => { if (!e.relatedTarget) document.body.classList.remove('dragging'); });
+document.addEventListener('drop', e => { e.preventDefault(); document.body.classList.remove('dragging'); const f = e.dataTransfer?.files?.[0]; if (f) loadFile(f); });
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's' && doc) {
+    e.preventDefault();
+    if (view === 'dev') A.saveDraft(); else if (view === 'rev') A.saveProgress(); else A.dlJson();
+  }
+});
+
+document.addEventListener('visibilitychange', () => { if (!document.hidden) sharedRefresh(true); });
+setInterval(() => { if (!document.hidden && view === 'home') sharedRefresh(true); }, 60000);
+
+$('#rpcss').textContent = REPORT_CSS;
+{ const t = store.get('theme'); if (t) document.documentElement.dataset.theme = t; }
+render();
+sharedInit();
+</script>
+</body>
+</html>
