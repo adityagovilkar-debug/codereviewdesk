@@ -156,6 +156,7 @@ button.chip:hover{border-color:var(--rule-strong);color:var(--ink)}
 .inp{height:30px;border:1px solid var(--rule);border-radius:var(--r);background:var(--paper);padding:0 10px;font-family:var(--mono);font-size:12px;outline:0;transition:border-color .2s;width:100%;min-width:0}
 .inp:focus{border-color:var(--ink-2)}
 .inp.sans{font-family:var(--sans);font-size:12.5px}
+.inp[style*="uppercase"]::placeholder{text-transform:none}
 .inp:disabled{background:var(--paper-2);color:var(--ink-2)}
 textarea.inp{height:auto;padding:8px 10px;resize:vertical;line-height:1.5;font-family:var(--sans);font-size:12.5px}
 select.inp{padding:0 6px}
@@ -402,6 +403,34 @@ fieldset:disabled .tags{background:var(--paper-2)}
 .titem.add{display:block;padding:9px 12px 9px 46px}
 .tplstate{display:grid;gap:8px}
 
+/* team features */
+.kb.lockk{border-style:dashed;border-color:var(--pen-4);color:var(--pen-4)}
+.kb.lockk i{background:var(--pen-4);animation:pulse 1.6s infinite}
+.gbtn{width:18px;height:18px;border-radius:50%;border:1px solid var(--rule-strong);font-family:var(--mono);font-size:10px;color:var(--ink-3);display:inline-grid;place-items:center;flex:none;cursor:pointer;user-select:none;transition:all .15s}
+.gbtn:hover,.gbtn.on{border-color:var(--pen-4);color:var(--pen-4)}
+.gbtn.has{border-color:var(--pen-4);color:var(--pen-4);background:color-mix(in srgb,var(--pen-4) 10%,transparent)}
+.guide{margin:8px 0 2px 48px;padding:9px 12px;border-left:2px solid var(--pen-4);background:var(--paper-2);font-size:11.5px;line-height:1.6;color:var(--ink-2);white-space:pre-wrap}
+.rv .guide{margin-left:32px}
+.guide .lbl{display:block;margin-bottom:2px}
+.guide pre{margin:0;font-family:var(--mono);font-size:11px;white-space:pre-wrap;color:var(--ink)}
+.gedit{grid-column:2/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 0 6px}
+.seen{margin-top:12px;border:1px dashed var(--rule-strong);border-radius:var(--r);padding:10px 12px;display:grid;gap:9px}
+.seen .sh{font-size:11.5px;color:var(--ink-2)}
+.seen .sr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-size:11.5px}
+.seen .sf{grid-column:2/-1;font-size:11px;color:var(--ink-3);line-height:1.6}
+.rank{display:grid}
+.rank .rr{border-top:1px dotted var(--rule-strong);padding:7px 0;font-size:11.5px}
+.rank .rr:first-child{border-top:0}
+.rank div.rr,.rank details.rr>summary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.rank details.rr>summary{list-style:none;cursor:pointer}
+.rank details.rr>summary::-webkit-details-marker{display:none}
+.rank details.rr>summary:hover .tx{color:var(--ink)}
+.rank .tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+.rank .tx b{font-family:var(--mono);font-weight:500;color:var(--ink-3);margin-right:7px;font-size:10.5px}
+.rank .v{display:flex;align-items:center;gap:8px;font-family:var(--mono)}
+.chart{width:100%;height:180px;display:block}
+.qacts{display:flex;gap:4px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+
 /* ------------------------------------------------------------- overlays */
 .scrim{position:fixed;inset:0;z-index:40;background:color-mix(in srgb,var(--paper) 70%,transparent);backdrop-filter:blur(3px);display:none}
 .scrim.on{display:block}
@@ -484,6 +513,9 @@ dialog#dlg::backdrop{background:color-mix(in srgb,var(--paper) 70%,transparent);
     <button class="rb" data-a="nav" data-v="dev" style="--pen:var(--pen-6)"><svg viewBox="0 0 24 24"><path d="m8.5 8-4 4 4 4M15.5 8l4 4-4 4M13.5 5.5l-3 13"/></svg><span class="pd"></span><span class="tip" data-tip="Developer · 2">Developer · 2</span></button>
     <button class="rb" data-a="nav" data-v="rev" style="--pen:var(--pen-5)"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/><path d="m8 10.6 1.8 1.8 3.4-3.6"/></svg><span class="pd"></span><span class="tip" data-tip="Reviewer · 3">Reviewer · 3</span></button>
     <button class="rb" data-a="nav" data-v="report" style="--pen:var(--pen-3)"><svg viewBox="0 0 24 24"><path d="M6 3.5h8.5l3.5 3.5v13.5H6z"/><path d="M14.5 3.5V7H18M9 11h6M9 14h6M9 17h3.5"/></svg><span class="pd"></span><span class="tip" data-tip="Document · 4">Document · 4</span></button>
+    <div class="sep"></div>
+    <button class="rb" data-a="nav" data-v="insights" style="--pen:var(--pen-1)"><svg viewBox="0 0 24 24"><path d="M4 19.5h16"/><path d="M6.5 16v-3M10.5 16V8M14.5 16v-5M18.5 16V5"/></svg><span class="pd"></span><span class="tip">Insights · 6</span></button>
+    <button class="rb" data-a="nav" data-v="team" style="--pen:var(--ink-2)"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.8 14.2c2.3.2 4 1.7 4.7 4.8"/></svg><span class="pd"></span><span class="tip">Team · 7</span></button>
     <div class="grow"></div>
     <button class="rb" data-a="openFile" style="--pen:var(--ink-2)"><svg viewBox="0 0 24 24"><path d="M3.5 6.5h6l2 2h9v10h-17z"/><path d="M12 11v5M9.8 13.2 12 11l2.2 2.2"/></svg><span class="pd"></span><span class="tip">Open a file · O</span></button>
     <div class="sep"></div>
@@ -918,7 +950,7 @@ dialog#dlg::backdrop{background:color-mix(in srgb,var(--paper) 70%,transparent);
 const BUILTIN_TPL = JSON.parse(document.getElementById('crd-template').textContent);
 /* Pristine copy of this page, captured before anything renders, for "Download tool with this checklist". */
 const BASE_HTML = '<!doctype html>\n' + document.documentElement.outerHTML.replace(/^<html([^>]*?) data-theme="[^"]*"/, '<html$1');
-const VER = '2.0.0';
+const VER = '2.1.0';
 const STATUS = {
   F:  { label: 'Followed',       short: 'Followed',     code: '1-Followed',       pen: 'good', mark: '✔', wiki: '(/)' },
   N:  { label: 'Not followed',   short: 'Not followed', code: '0-Not followed',   pen: 'bad', mark: '✖', wiki: '(x)' },
@@ -930,9 +962,10 @@ const STAGES = {
   submitted: { label: 'In review',         stamp: 'IN REVIEW',         pen: 'watch' },
   changes:   { label: 'Changes requested', stamp: 'CHANGES REQUESTED', pen: 'bad' },
   approved:  { label: 'Approved',          stamp: 'APPROVED',          pen: 'good' },
+  withdrawn: { label: 'Withdrawn',         stamp: 'WITHDRAWN',         pen: 'ink-3' },
 };
-const VIEW_PEN = { home: 'pen-2', dev: 'pen-6', rev: 'pen-5', report: 'pen-3', checklist: 'pen-4' };
-const VIEW_TITLE = { home: 'Reviews', dev: 'Developer', rev: 'Reviewer', report: 'Document', checklist: 'Checklist setup' };
+const VIEW_PEN = { home: 'pen-2', dev: 'pen-6', rev: 'pen-5', report: 'pen-3', checklist: 'pen-4', insights: 'pen-1', team: 'ink-2' };
+const VIEW_TITLE = { home: 'Reviews', dev: 'Developer', rev: 'Reviewer', report: 'Document', checklist: 'Checklist setup', insights: 'Insights', team: 'Team' };
 const DOC_VIEWS = ['dev', 'rev', 'report'];
 
 /* ============================================================ helpers */
@@ -1017,7 +1050,7 @@ function normalizeTpl(t) {
     sections: (t?.sections || []).map(s => ({
       id: String(s.id), title: String(s.title ?? ''),
       next: +s.next || (s.items?.length || 0) + 1,
-      items: (s.items || []).map(i => ({ id: String(i.id), text: String(i.text ?? '') })),
+      items: (s.items || []).map(i => ({ id: String(i.id), text: String(i.text ?? ''), ...(i.why ? { why: String(i.why) } : {}), ...(i.ex ? { ex: String(i.ex) } : {}) })),
     })),
     objectTypes: (t?.objectTypes || []).map(o => ({ id: String(o.id), label: String(o.label ?? ''), secs: (o.secs || []).map(String) })),
   };
@@ -1067,6 +1100,10 @@ function tplSections() {
     items: s.items.filter(i => i.text.trim()).map((i, k) => ({ id: i.id, text: i.text.trim(), n: k + 1 })),
   }));
 }
+/* Per-check guidance (why it matters + an example), looked up in this browser's checklist by check id. */
+function guideOf(id) { for (const s of TPL.sections) { const i = s.items.find(x => x.id === id); if (i) return i.why || i.ex ? i : null; } return null; }
+const guideBtn = id => guideOf(id) ? `<span role="button" tabindex="0" class="gbtn${ui.guideOpen[id] ? ' on' : ''}" data-a="guide" data-id="${esc(id)}" title="Why this check matters">?</span>` : '';
+function guideBlock(id) { const g = guideOf(id); return g ? `<div class="guide" data-guide="${esc(id)}" ${ui.guideOpen[id] ? '' : 'hidden'}>${g.why ? `<span class="lbl">Why it matters</span>${esc(g.why)}` : ''}${g.ex ? `<span class="lbl"${g.why ? ' style="margin-top:8px"' : ''}>Example</span><pre>${esc(g.ex)}</pre>` : ''}</div>` : ''; }
 function newSectionId(title) {
   const base = (String(title).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3) || 'SEC');
   const used = new Set([...TPL.sections.map(s => s.id), ...BUILTIN_TPL.sections.map(s => s.id)]);
@@ -1084,7 +1121,7 @@ const myWho = () => who(myId(), myName());
 /* ============================================================ model */
 let doc = null;
 let view = 'home';
-const ui = { filter: '', selOnly: false, collapsed: {}, revFilter: 'all', tplCollapsed: {}, sharedQ: '', sharedStage: 'open' };
+const ui = { filter: '', selOnly: false, collapsed: {}, revFilter: 'all', tplCollapsed: {}, sharedQ: '', sharedStage: 'open', period: '365', yirId: '', yirYear: '', guideOpen: {}, tplGuide: {} };
 
 function newDoc() {
   const me = store.get('me', {});
@@ -1192,7 +1229,7 @@ function totalEffort(d) {
   return n.length ? +n.reduce((a, b) => a + b, 0).toFixed(2) : '';
 }
 function tabsFor(d) {
-  return { dev: d.stage !== 'approved', rev: d.stage === 'submitted', report: true };
+  return { dev: d.stage !== 'approved' && d.stage !== 'withdrawn', rev: d.stage === 'submitted', report: true };
 }
 /* The developer's half is only editable while it is theirs: as a draft, or after changes were requested.
    While a review is with the reviewer it is read-only until someone recalls it. */
@@ -1280,7 +1317,7 @@ function openDocData(data) {
     doc.review.revId = myId() || r.revId || ''; doc.review.revName = myName() || r.revName || '';
   }
   ui.filter = ''; ui.revFilter = 'all'; ui.collapsed = {};
-  const v = { draft: 'dev', submitted: mine ? 'dev' : 'rev', changes: 'dev', approved: 'report' }[doc.stage] || 'dev';
+  const v = { draft: 'dev', submitted: mine ? 'dev' : 'rev', changes: 'dev', approved: 'report', withdrawn: 'report' }[doc.stage] || 'dev';
   saveLocal(true);
   go(v);
   toast(`Opened ${doc.header.ticket || 'review'} — ${STAGES[doc.stage].label}`);
@@ -1348,7 +1385,9 @@ async function sharedRefresh(quiet) {
   shared.scanning = true; paintChrome();
   try {
     await syncSharedTpl(quiet);
+    await syncTeam();
     shared.reviews = await scanReviews();
+    await scanLocks();
     shared.scannedAt = nowIso(); shared.error = '';
   } catch (e) {
     shared.error = e.message || String(e);
@@ -1357,7 +1396,11 @@ async function sharedRefresh(quiet) {
   }
   shared.scanning = false;
   if (shared.status !== before) render();
-  else { paintChrome(); if (view === 'home') paintShared(); }
+  else {
+    paintChrome();
+    if (view === 'home') paintShared();
+    else if ((view === 'insights' || view === 'team') && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName)) render();
+  }
 }
 async function syncSharedTpl(quiet) {
   let f;
@@ -1382,13 +1425,32 @@ async function syncSharedTpl(quiet) {
   if (view === 'checklist' && !document.activeElement?.dataset?.t) render();
 }
 const scanCache = new Map();
+/* One entry per finished review round (earlier rounds + the current one once a verdict is in). */
+function roundsOf(d) {
+  const rr = (d.pastRounds || []).map(p => ({ round: p.round, revId: p.review?.revId || '', revName: p.review?.revName || '', date: p.review?.date || '', effort: parseFloat(p.review?.effort) || 0, verdict: p.review?.verdict || 'changes',
+    findings: Object.entries(p.items || {}).filter(([, x]) => x.s === 'N').map(([id, x]) => ({ id, c: x.c || '' })) }));
+  if ((d.stage === 'changes' || d.stage === 'approved' || (d.stage === 'withdrawn' && d.review?.verdict)) && d.review)
+    rr.push({ round: d.round || 1, revId: d.review.revId || '', revName: d.review.revName || '', date: d.review.date || '', effort: parseFloat(d.review.effort) || 0, verdict: d.stage === 'approved' ? 'approve' : 'changes',
+      findings: Object.entries(d.items || {}).filter(([, i]) => i.sel && i.rev?.s === 'N').map(([id, i]) => ({ id, c: i.rev.c || '' })) });
+  return rr;
+}
 function summarize(d, file) {
+  const hist = d.history || [], last = re => [...hist].reverse().find(x => re.test(x.action || ''))?.at || '';
+  const rounds = roundsOf(d);
+  const devN = Object.entries(d.items || {}).filter(([, i]) => i.sel && i.dev?.s === 'N').map(([id]) => id);
+  const need = new Set([...rounds.flatMap(r => r.findings.map(f => f.id)), ...devN]);
+  const ck = {}; for (const c of d.checklist || []) if (need.has(c.id)) ck[c.id] = { t: c.text, s: c.secTitle || c.sec, n: c.n };
+  const stage = STAGES[d.stage] ? d.stage : 'draft';
+  const lastSubmittedAt = last(/^(Submitted|Resubmitted)/);
   return {
-    file, id: d.id, ticket: d.header?.ticket || '', title: d.header?.title || '', stage: STAGES[d.stage] ? d.stage : 'draft', round: d.round || 1,
+    file, id: d.id, ticket: d.header?.ticket || '', title: d.header?.title || '', stage, round: d.round || 1,
     devId: d.header?.devId || '', devName: d.header?.devName || '', revId: d.review?.revId || '', revName: d.review?.revName || '',
     asgId: d.assignee?.id || '', asgName: d.assignee?.name || '', updatedAt: d.updatedAt || '', module: d.header?.module || '',
     objs: (d.objects || []).map(o => o.name).filter(Boolean), trs: (d.transports || []).map(t => t.tr).filter(Boolean),
-    submittedAt: [...(d.history || [])].reverse().find(x => /Submitted|Resubmitted/.test(x.action))?.at || '',
+    createdAt: d.createdAt || '', submittedAt: hist.find(x => /^Submitted/.test(x.action || ''))?.at || '', lastSubmittedAt,
+    approvedAt: last(/^Approved/), withdrawnNote: [...hist].reverse().find(x => x.action === 'Withdrawn')?.note || '',
+    waitSince: stage === 'submitted' ? lastSubmittedAt || d.updatedAt : stage === 'changes' ? last(/^(Changes requested|Reopened)/) || d.updatedAt : d.updatedAt,
+    rounds, devN, ck,
   };
 }
 async function scanReviews() {
@@ -1472,6 +1534,278 @@ function queues(me) {
     waiting: R.filter(x => x.stage === 'submitted' && sameId(x.devId, me)),
   };
 }
+
+/* ============================================================ team list (team.json in the shared folder)
+   members: who is on the team (SAP ID + name) · owners: who may publish the checklist (empty = anyone)
+   snippets: saved reviewer comments. Every change re-reads the file first and applies just that change. */
+const TEAM_FILE = 'team.json';
+const team = { members: [], owners: [], snippets: [], exists: false, mod: 0, by: '', at: '' };
+function normTeam(j) {
+  return {
+    members: (j?.members || []).map(m => ({ id: String(m.id || '').trim().toUpperCase(), name: String(m.name || '').trim() })).filter(m => m.id),
+    owners: (j?.owners || []).map(x => String(x).trim().toUpperCase()).filter(Boolean),
+    snippets: (j?.snippets || []).map(s => ({ id: String(s.id || uid()), text: String(s.text || '').trim(), by: String(s.by || '') })).filter(s => s.text),
+    by: j?.updatedBy || '', at: j?.updatedAt || '',
+  };
+}
+async function syncTeam() {
+  let f;
+  try { f = await (await shared.handle.getFileHandle(TEAM_FILE)).getFile(); }
+  catch (e) { if (e.name === 'NotFoundError') { Object.assign(team, normTeam({}), { exists: false, mod: 0 }); return; } throw e; }
+  if (team.exists && team.mod === f.lastModified) return;
+  try { Object.assign(team, normTeam(JSON.parse(await f.text())), { exists: true, mod: f.lastModified }); } catch { /* mid-sync */ }
+}
+async function teamOp(fn, msg) {
+  if (!sharedOn()) { toast('Connect the shared folder first — the team list lives there.', true); return false; }
+  try {
+    let cur = normTeam({});
+    try { cur = normTeam(JSON.parse(await (await (await shared.handle.getFileHandle(TEAM_FILE)).getFile()).text())); }
+    catch (e) { if (e.name !== 'NotFoundError' && !(e instanceof SyntaxError)) throw e; }
+    if (fn(cur) === false) return false;
+    const body = { app: 'code-review-desk-team', schema: 1, members: cur.members, owners: cur.owners, snippets: cur.snippets, updatedAt: nowIso(), updatedBy: myId() };
+    await writeText('', TEAM_FILE, JSON.stringify(body, null, 1));
+    const f = await (await shared.handle.getFileHandle(TEAM_FILE)).getFile();
+    Object.assign(team, normTeam(body), { exists: true, mod: f.lastModified });
+    if (msg) toast(msg);
+    return true;
+  } catch (e) { toast(`Couldn’t update the team list: ${e.message}`, true); return false; }
+}
+const memberOf = id => team.members.find(m => sameId(m.id, id));
+const knownId = id => !team.members.length || !id || !!memberOf(id);
+const isOwner = id => !team.owners.length || team.owners.some(o => sameId(o, id));
+const teamDl = () => `<datalist id="dl-team">${team.members.map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('')}</datalist>`;
+const ownerNames = () => team.owners.map(o => memberOf(o)?.name || o).join(', ');
+function allSnippets() { const out = []; for (const t of [...team.snippets.map(s => s.text), ...store.get('snippets', [])]) if (!out.includes(t)) out.push(t); return out; }
+const snipDl = () => `<datalist id="dl-snip">${allSnippets().map(t => `<option value="${esc(t)}">`).join('')}</datalist>`;
+/* Fill the matching name field when a known SAP ID is typed. */
+const NAME_OF = { 'header.devId': 'header.devName', 'assignee.id': 'assignee.name', 'review.revId': 'review.revName' };
+
+/* ============================================================ presence ("who has this open")
+   locks/<reviewId>__<USER>.json, rewritten every 45 s while the review is open for editing or reviewing.
+   Advisory only: it never blocks anyone, it just tells colleagues. */
+const LOCKS_DIR = 'locks', LOCK_TTL = 180000, LOCK_HB = 45000;
+let myLock = null, othersLocks = new Map();
+const lockFile = (id, who) => `${id}__${safeName(who)}.json`;
+async function writeLock() {
+  if (!myLock || !sharedOn()) return;
+  try { await writeText(LOCKS_DIR, lockFile(myLock.id, myLock.by), JSON.stringify({ id: myLock.id, by: myLock.by, name: myName(), mode: myLock.mode, ticket: myLock.ticket, at: myLock.at, hb: nowIso() })); } catch { /* the folder may be busy syncing */ }
+}
+async function releaseLock() {
+  if (!myLock) return;
+  const l = myLock; myLock = null; clearInterval(l.timer);
+  try { await (await shared.handle.getDirectoryHandle(LOCKS_DIR)).removeEntry(lockFile(l.id, l.by)); } catch { /* already gone */ }
+}
+function syncLock() {
+  const want = doc && sharedOn() && myId() && ((view === 'rev' && doc.stage === 'submitted') || (view === 'dev' && devEditable(doc))) ? (view === 'rev' ? 'review' : 'edit') : null;
+  if (!want) { if (myLock) releaseLock(); return; }
+  if (myLock && myLock.id === doc.id && myLock.mode === want) return;
+  const go = async () => { await releaseLock(); myLock = { id: doc.id, by: myId(), mode: want, ticket: doc.header.ticket, at: nowIso() }; await writeLock(); myLock && (myLock.timer = setInterval(writeLock, LOCK_HB)); };
+  go();
+}
+async function scanLocks() {
+  const map = new Map();
+  let dir; try { dir = await shared.handle.getDirectoryHandle(LOCKS_DIR); } catch { othersLocks = map; return; }
+  for await (const [name, h] of dir.entries()) {
+    if (h.kind !== 'file' || !name.endsWith('.json')) continue;
+    try {
+      const f = await h.getFile(), j = JSON.parse(await f.text());
+      const age = Date.now() - Date.parse(j.hb || 0);
+      if (age > 864e5) { dir.removeEntry(name).catch(() => {}); continue; } /* tidy locks left by crashed sessions */
+      if (age > LOCK_TTL || sameId(j.by, myId())) continue;
+      map.set(j.id, [...(map.get(j.id) || []), j]);
+    } catch { /* partly synced */ }
+  }
+  othersLocks = map;
+}
+const lockText = l => `${l.name || l.by} ${l.mode === 'review' ? 'is reviewing' : 'is editing'}`;
+const lockBadge = id => (othersLocks.get(id) || []).map(l => `<span class="kb lockk" title="Opened ${esc(fmtWhen(l.at))} — still open"><i></i>${esc(lockText(l))}</span>`).join(' ');
+function lockBanner(d) {
+  const ls = othersLocks.get(d.id) || [];
+  if (!ls.length) return '';
+  return `<div class="banner" style="--pen:var(--pen-4)"><span class="ic"></span><span><b>${ls.map(l => esc(lockText(l))).join(' and ')} this review right now</b> (open since ${ls.map(l => new Date(l.at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })).join(', ')}). Check with them before you change it, so neither of you loses work.</span><span></span></div>`;
+}
+
+/* ============================================================ seen before: earlier reviews of the same objects */
+function seenHtml(d) {
+  if (!sharedOn()) return '';
+  const names = [...new Set(d.objects.map(o => o.name.trim().toUpperCase()).filter(Boolean))];
+  if (!names.length) return '';
+  const hits = shared.reviews.filter(x => x.id !== d.id && x.stage !== 'withdrawn' && (x.objs || []).some(o => names.includes(o.toUpperCase())));
+  if (!hits.length) return '';
+  const rows = hits.slice(0, 8).map(x => {
+    const f = (x.rounds || []).flatMap(r => r.findings.map(z => ({ ...z, round: r.round })));
+    const objs = (x.objs || []).filter(o => names.includes(o.toUpperCase()));
+    return `<div class="sr"><button class="btn sm ghost mono" data-a="peek" data-file="${esc(x.file)}" title="Open ${esc(x.ticket)}">${esc(x.ticket || 'Untitled')}</button>
+      <span class="ink2">${esc(x.title)} <span class="dim mono" style="font-size:10.5px">· ${esc(objs.join(', '))} · ${esc(x.devName || x.devId)}${x.approvedAt ? ' · approved ' + fmtDate(x.approvedAt) : ''}</span></span>${stageKb(x.stage, x.round)}
+      ${f.length ? `<div class="sf">${f.slice(0, 4).map(z => { const c = x.ck?.[z.id]; return `<span style="color:var(--bad)">●</span> ${esc(c ? `${c.s} #${c.n} — ${c.t.slice(0, 70)}${c.t.length > 70 ? '…' : ''}` : z.id)}${z.c ? ` <i>“${esc(z.c)}”</i>` : ''} <span class="mono">R${z.round}</span>`; }).join('<br>')}${f.length > 4 ? `<br>+${f.length - 4} more` : ''}</div>` : '<div class="sf">No findings were raised.</div>'}</div>`;
+  }).join('');
+  return `<div class="seen"><div class="sh"><span class="lbl" style="margin-right:8px">Seen before</span>${hits.length === 1 ? 'This was reviewed once before' : `These objects were reviewed ${hits.length} times before`}. What was flagged then is worth a look now.</div>${rows}${hits.length > 8 ? `<div class="dim small">…and ${hits.length - 8} more. Search for the object with Ctrl K.</div>` : ''}</div>`;
+}
+
+/* ============================================================ reminders + CSV */
+function reminderText(x) {
+  const days = Math.max(1, Math.floor(daysSince(x.waitSince || x.updatedAt)));
+  const t = `${x.ticket}${x.title ? ' — ' + x.title : ''}`;
+  if (x.stage === 'submitted') {
+    const rev = x.asgName || x.asgId || x.revName || x.revId;
+    return `Reminder: code review ${t} has been waiting for review for ${pl(days, 'day')}${rev ? ` (with ${rev})` : ''}. It's in Code Review Desk under "Needs my review".`;
+  }
+  return `Reminder: code review ${t} has been back with ${x.devName || x.devId || 'the developer'} for changes for ${pl(days, 'day')}. It's in Code Review Desk under "Changes requested on my work".`;
+}
+const waitingOf = x => x.stage === 'submitted' || x.stage === 'changes';
+const remindBtn = x => waitingOf(x) && daysSince(x.waitSince || x.updatedAt) >= 2 ? `<button class="btn sm ghost" data-a="remind" data-file="${esc(x.file)}" title="Copy a reminder for Teams">Copy reminder</button>` : '';
+function csvCell(v) { v = String(v ?? ''); return /[",\r\n;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function reviewsCsv() {
+  const head = ['Ticket', 'Title', 'Module', 'Status', 'Round', 'Developer ID', 'Developer', 'Reviewer ID', 'Reviewer', 'Assigned to', 'Created', 'First submitted', 'Approved', 'Days to approval', 'Review effort (h)', 'Findings', 'Objects', 'Transports', 'Withdrawn reason', 'File'];
+  const rows = shared.reviews.map(x => {
+    const tat = x.submittedAt && x.approvedAt ? ((Date.parse(x.approvedAt) - Date.parse(x.submittedAt)) / 864e5).toFixed(1) : '';
+    return [x.ticket, x.title, x.module, STAGES[x.stage]?.label || x.stage, x.round, x.devId, x.devName, x.revId, x.revName, who(x.asgId, x.asgName), fmtDate(x.createdAt), fmtDate(x.submittedAt), fmtDate(x.approvedAt), tat,
+      (x.rounds || []).reduce((a, r) => a + r.effort, 0) || '', (x.rounds || []).reduce((a, r) => a + r.findings.length, 0), (x.objs || []).join(' '), (x.trs || []).join(' '), x.withdrawnNote || '', x.file];
+  });
+  return '﻿' + [head, ...rows].map(r => r.map(csvCell).join(',')).join('\r\n');
+}
+
+/* ============================================================ insights */
+const median = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const dayIso = d => d ? (d.length === 10 ? d + 'T12:00:00' : d) : '';
+function insights(pk) {
+  const since = pk === 'all' ? 0 : Date.now() - (+pk) * 864e5;
+  const inP = iso => !!iso && Date.parse(dayIso(iso)) >= since;
+  const R = shared.reviews.filter(x => x.stage !== 'withdrawn');
+  const appr = R.filter(x => x.stage === 'approved' && inP(x.approvedAt));
+  const tatOf = x => x.submittedAt && x.approvedAt ? (Date.parse(x.approvedAt) - Date.parse(x.submittedAt)) / 864e5 : null;
+  const tats = appr.map(tatOf).filter(v => v != null && v >= 0);
+  const rounds = R.flatMap(x => (x.rounds || []).map(r => ({ ...r, x }))).filter(r => inP(r.date || r.x.updatedAt));
+  const checks = new Map(), excs = new Map();
+  for (const r of rounds) for (const f of r.findings) {
+    const c = r.x.ck?.[f.id], e = checks.get(f.id) || { id: f.id, t: c?.t || f.id, s: c?.s || '', n: c?.n || '', count: 0, tickets: new Map() };
+    e.count++; e.tickets.set(r.x.ticket, r.x.file); checks.set(f.id, e);
+  }
+  for (const x of R.filter(x => inP(x.lastSubmittedAt || x.submittedAt))) for (const id of x.devN || []) {
+    const c = x.ck?.[id], e = excs.get(id) || { id, t: c?.t || id, s: c?.s || '', n: c?.n || '', count: 0, tickets: new Map() };
+    e.count++; e.tickets.set(x.ticket, x.file); excs.set(id, e);
+  }
+  const people = new Map();
+  const P = (id, name) => { const k = String(id || '').toUpperCase(); if (!k) return null; const p = people.get(k) || { id: k, name: name || memberOf(k)?.name || '', wrote: 0, appr: 0, first: 0, recv: 0, reviewed: 0, hours: 0, gave: 0 }; if (!p.name && name) p.name = name; people.set(k, p); return p; };
+  for (const x of R) { if (inP(x.submittedAt)) { const p = P(x.devId, x.devName); if (p) p.wrote++; } }
+  for (const x of appr) { const p = P(x.devId, x.devName); if (p) { p.appr++; if ((x.rounds || []).length <= 1) p.first++; } }
+  for (const r of rounds) { const d = P(r.x.devId, r.x.devName); if (d) d.recv += r.findings.length; const v = P(r.revId, r.revName); if (v) { v.reviewed++; v.hours += r.effort; v.gave += r.findings.length; } }
+  const months = [];
+  const now = new Date();
+  for (let i = 11; i >= 0; i--) {
+    const m = new Date(now.getFullYear(), now.getMonth() - i, 1), key = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
+    const xs = R.filter(x => x.stage === 'approved' && (x.approvedAt || '').slice(0, 7) === key);
+    months.push({ key, label: m.toLocaleString('en-GB', { month: 'short' }), n: xs.length, med: median(xs.map(tatOf).filter(v => v != null && v >= 0)) });
+  }
+  return {
+    appr, tats, rounds, months,
+    checks: [...checks.values()].sort((a, b) => b.count - a.count), excs: [...excs.values()].sort((a, b) => b.count - a.count),
+    people: [...people.values()].sort((a, b) => (b.wrote + b.reviewed) - (a.wrote + a.reviewed)),
+    firstPct: appr.length ? Math.round(100 * appr.filter(x => (x.rounds || []).length <= 1).length / appr.length) : null,
+    avgRounds: appr.length ? appr.reduce((a, x) => a + Math.max(1, (x.rounds || []).length), 0) / appr.length : null,
+    hours: rounds.reduce((a, r) => a + r.effort, 0), findings: rounds.reduce((a, r) => a + r.findings.length, 0),
+  };
+}
+function drawMonths(ctx, w, h, t, dt, s, p, months) {
+  const pad = 26, cw = (w - pad * 2) / months.length, max = Math.max(4, ...months.map(m => m.n)), rows = Math.floor((h - 46) / 6), base = h - 30;
+  months.forEach((m, i) => {
+    const x = pad + i * cw + cw / 2, lit = Math.round(m.n / max * rows * p);
+    for (let j = 0; j < rows; j++) { const y = base - j * 6; if (j < lit) dot(ctx, x, y, j === lit - 1 ? 2.3 : 1.6, C['pen-1'], j === lit - 1 ? 1 : .35 + .4 * j / rows); else if (j < 2 || j % 3 === 0) dot(ctx, x, y, .7, C['ink-4']); }
+    label(ctx, m.label.toUpperCase(), x, h - 14, { size: 7.5, spacing: 1, color: s.hi === i ? C.ink : C['ink-3'] });
+    if (m.n) label(ctx, String(m.n), x, base - lit * 6 - 10, { font: MONO, size: 9.5, weight: 500, color: C['ink-2'] });
+    s.hits.push({ x: pad + i * cw, y: 0, w: cw, h, tip: `<b>${m.label} ${m.key.slice(0, 4)}</b> · ${pl(m.n, 'review')} approved${m.med != null ? ` · median ${m.med.toFixed(1)} days from first submission` : ''}` });
+  });
+}
+function rankHtml(list, max, p, empty) {
+  if (!list.length) return `<div class="empty"><span>${empty}</span></div>`;
+  return `<div class="rank">${list.slice(0, 10).map(c => `<details class="rr"><summary><span class="tx" title="${esc(c.t)}"><b>${esc(c.s ? c.s + ' #' + c.n : c.id)}</b>${esc(c.t)}</span><span class="v">${dotBar(c.count / max, 12, `var(--${p})`)}${c.count}</span></summary>
+    <div class="dim small" style="padding:4px 0 2px">${[...c.tickets.entries()].slice(0, 12).map(([tk, f]) => `<button class="btn sm ghost mono" data-a="peek" data-file="${esc(f)}">${esc(tk)}</button>`).join(' ')}</div></details>`).join('')}</div>`;
+}
+function yearData(id, year) {
+  const R = shared.reviews.filter(x => x.stage !== 'withdrawn'), y = String(year);
+  const mine = R.filter(x => sameId(x.devId, id) && (x.submittedAt || '').startsWith(y));
+  const appr = mine.filter(x => x.stage === 'approved');
+  const recv = new Map();
+  mine.forEach(x => (x.rounds || []).forEach(r => r.findings.forEach(f => { const c = x.ck?.[f.id]; const k = c ? `${c.s} #${c.n} — ${c.t}` : f.id; recv.set(k, (recv.get(k) || 0) + 1); })));
+  const revRounds = R.flatMap(x => (x.rounds || []).map(r => ({ ...r, x }))).filter(r => sameId(r.revId, id) && (r.date || '').startsWith(y));
+  const revReviews = new Set(revRounds.map(r => r.x.id));
+  return {
+    wrote: mine.length, approved: appr.length, first: appr.filter(x => (x.rounds || []).length <= 1).length,
+    avgRounds: appr.length ? appr.reduce((a, x) => a + Math.max(1, (x.rounds || []).length), 0) / appr.length : 0,
+    objects: [...new Set(mine.flatMap(x => x.objs || []))], topRecv: [...recv.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3),
+    reviewed: revReviews.size, rounds: revRounds.length, hours: revRounds.reduce((a, r) => a + r.effort, 0), gave: revRounds.reduce((a, r) => a + r.findings.length, 0),
+    tickets: mine.map(x => x.ticket),
+  };
+}
+function yearText(id, year, y) {
+  const nm = memberOf(id)?.name || id;
+  return [`Code reviews ${year} — ${nm} (${id})`, '',
+    `As developer: ${pl(y.wrote, 'review')} sent, ${y.approved} approved${y.approved ? `, ${y.first} first time (${Math.round(100 * y.first / y.approved)}%), ${y.avgRounds.toFixed(1)} rounds on average` : ''}.`,
+    y.objects.length ? `Objects changed: ${y.objects.length} (${y.objects.slice(0, 12).join(', ')}${y.objects.length > 12 ? ', …' : ''}).` : '',
+    y.topRecv.length ? `Most common findings received: ${y.topRecv.map(([k, n]) => `${k.slice(0, 80)} (${n})`).join('; ')}.` : 'No findings received.',
+    `As reviewer: ${pl(y.reviewed, 'review')} reviewed over ${pl(y.rounds, 'round')}, ${y.hours ? y.hours.toFixed(1) + ' hours' : 'no effort recorded'}, ${pl(y.gave, 'finding')} raised.`,
+    y.tickets.length ? `Tickets: ${y.tickets.join(', ')}` : ''].filter(Boolean).join('\n');
+}
+function vInsights() {
+  const head = `<div class="th rise" style="--pen:var(--pen-1)"><div><div class="no">06 · INSIGHTS</div><h1>Team insights <span class="t">${sharedOn() ? esc(shared.name) : ''}</span></h1></div>
+    <div class="acts">${sharedOn() ? `<div class="chips">${[['90', '90 days'], ['365', '12 months'], ['all', 'All time']].map(([k, l]) => `<button class="chip${ui.period === k ? ' on' : ''}" data-a="period" data-v="${k}">${l}</button>`).join('')}</div><button class="btn" data-a="exportCsv">Export CSV</button>` : ''}</div></div>`;
+  if (!sharedOn()) return head + `<div class="unit rise"><div class="empty"><b>Insights read every review in the shared folder</b><span>Connect the team’s shared folder on the Reviews page to see them.</span><button class="btn pri" data-a="sharedConnect">Connect shared folder</button></div></div>`;
+  const I = insights(ui.period);
+  const ro = (k, v, sub) => `<div class="ro"><span class="k">${k}</span><span class="v" style="font-size:17px">${v}${sub ? `<small class="dim" style="font-size:10px;margin-left:4px">${sub}</small>` : ''}</span></div>`;
+  const maxC = Math.max(1, ...I.checks.map(c => c.count)), maxE = Math.max(1, ...I.excs.map(c => c.count));
+  const ids = [...new Set([...team.members.map(m => m.id), ...shared.reviews.flatMap(x => [x.devId, ...(x.rounds || []).map(r => r.revId)]).map(x => String(x || '').toUpperCase()).filter(Boolean)])].sort();
+  const years = [...new Set(shared.reviews.map(x => (x.submittedAt || x.createdAt || '').slice(0, 4)).filter(Boolean))].sort().reverse();
+  if (!ui.yirId || !ids.includes(ui.yirId)) ui.yirId = ids.find(x => sameId(x, myId())) || ids[0] || '';
+  if (!ui.yirYear || !years.includes(ui.yirYear)) ui.yirYear = years[0] || String(new Date().getFullYear());
+  const y = ui.yirId ? yearData(ui.yirId, ui.yirYear) : null;
+  const ppl = I.people.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Person</th><th class="num">Sent</th><th class="num">Approved</th><th class="num">First time</th><th class="num">Findings received</th><th class="num">Rounds reviewed</th><th class="num">Hours reviewing</th><th class="num">Findings raised</th></tr></thead><tbody>
+    ${I.people.map(p => `<tr><td><span class="nm">${esc(p.id)}</span> <span class="dim">${esc(p.name)}</span></td><td class="num">${p.wrote || '·'}</td><td class="num">${p.appr || '·'}</td><td class="num">${p.appr ? Math.round(100 * p.first / p.appr) + '%' : '·'}</td><td class="num">${p.recv || '·'}</td><td class="num">${p.reviewed || '·'}</td><td class="num">${p.hours ? p.hours.toFixed(1) : '·'}</td><td class="num">${p.gave || '·'}</td></tr>`).join('')}
+    </tbody></table></div>` : '<div class="empty"><span>Nobody has sent or reviewed anything in this period.</span></div>';
+  return head + `
+    <div class="readouts rise">${ro('Approved', I.appr.length)}${ro('Median days to approval', I.tats.length ? median(I.tats).toFixed(1) : '—', I.tats.length ? 'from first submission' : '')}${ro('Rounds per approval', I.avgRounds ? I.avgRounds.toFixed(1) : '—')}${ro('Approved first time', I.firstPct != null ? I.firstPct + '%' : '—')}${ro('Review hours', I.hours ? I.hours.toFixed(1) : '—')}${ro('Findings raised', I.findings)}</div>
+    <div class="g g2 mt">
+      ${unit('Approved per month', `<canvas class="chart" data-ch="months"></canvas>`, { p: 'pen-1', meta: 'last 12 months · hover for turnaround' })}
+      ${unit('Checks most often not followed', rankHtml(I.checks, maxC, 'bad', 'No findings in this period.'), { p: 'bad', meta: 'reviewer findings · click for tickets' })}
+    </div>
+    <div class="mt">${unit('People', ppl, { p: 'pen-1', meta: `${I.people.length} people` })}</div>
+    <div class="g g2 mt">
+      ${unit('Most common self-declared exceptions', rankHtml(I.excs, maxE, 'watch', 'No developer marked a check “Not followed” in this period.'), { p: 'watch', meta: 'developer marked “Not followed”' })}
+      ${unit('Year in review', ids.length ? `<div class="hstack" style="margin-bottom:10px"><select class="inp" style="width:auto" data-ui="yirId">${ids.map(i => `<option value="${esc(i)}"${i === ui.yirId ? ' selected' : ''}>${esc(i)}${memberOf(i)?.name ? ' · ' + esc(memberOf(i).name) : ''}</option>`).join('')}</select>
+          <select class="inp" style="width:auto" data-ui="yirYear">${(years.length ? years : [ui.yirYear]).map(v => `<option${v === ui.yirYear ? ' selected' : ''}>${v}</option>`).join('')}</select><span class="sp"></span><button class="btn sm" data-a="copyYear">Copy as text</button></div>
+        <div class="readouts">${ro('Sent', y.wrote)}${ro('Approved', y.approved)}${ro('First time', y.approved ? Math.round(100 * y.first / y.approved) + '%' : '—')}${ro('Reviewed', y.reviewed)}${ro('Hours reviewing', y.hours ? y.hours.toFixed(1) : '—')}</div>
+        <div class="note"><span class="ring"></span><span>${esc(yearText(ui.yirId, ui.yirYear, y).split('\n').slice(2).join(' '))}</span></div>` : '<div class="empty"><span>No reviews yet.</span></div>', { p: 'pen-1', meta: 'for appraisals' })}
+    </div>`;
+}
+
+/* ============================================================ team page */
+function vTeam() {
+  const head = `<div class="th rise" style="--pen:var(--ink-2)"><div><div class="no">07 · TEAM</div><h1>Team <span class="t">${sharedOn() ? esc(shared.name) + '/team.json' : ''}</span></h1></div></div>`;
+  if (!sharedOn()) return head + `<div class="unit rise"><div class="empty"><b>The team list lives in the shared folder</b><span>Connect the team’s shared folder on the Reviews page. Saved comments you add now are kept in this browser.</span><button class="btn pri" data-a="sharedConnect">Connect shared folder</button></div></div>` + snippetsUnit();
+  const me = myId(), canOwners = isOwner(me);
+  return head + `<div class="banners rise">${me && !memberOf(me) && team.members.length ? `<div class="banner" style="--pen:var(--watch)"><span class="ic"></span><span>You (<b class="mono">${esc(me)}</b>) aren’t on the team list yet.</span><button class="btn" data-a="joinTeam">Add me</button></div>` : ''}</div>
+    <div class="g g2">
+    ${unit('Members', `${team.members.length ? `<table class="tbl"><thead><tr><th>SAP ID</th><th>Name</th><th>Checklist owner</th><th></th></tr></thead><tbody>
+      ${team.members.map(m => { const own = team.owners.some(o => sameId(o, m.id)); return `<tr><td class="nm">${esc(m.id)}</td><td>${esc(m.name)}</td>
+        <td><button type="button" class="tog inline${own ? ' on' : ''}" data-a="toggleOwner" data-id="${esc(m.id)}" ${canOwners ? '' : 'disabled'} title="${canOwners ? '' : 'Only checklist owners can change this'}"><span class="dim small">${own ? 'owner' : ''}</span><span class="sw"></span></button></td>
+        <td style="text-align:right"><button class="iconbtn x" data-a="delMember" data-id="${esc(m.id)}" title="Remove from the team list">✕</button></td></tr>`; }).join('')}</tbody></table>` : '<div class="empty"><b>No team list yet</b><span>Add everyone who writes or reviews code, so IDs are picked from a list instead of typed.</span></div>'}
+      <div class="frm" style="margin-top:12px;grid-template-columns:1fr 1.4fr auto;align-items:end">
+        <label class="field"><span class="k">SAP ID</span><input class="inp" id="tmId" style="text-transform:uppercase" placeholder="e.g. 38064200123" autocomplete="off"></label>
+        <label class="field"><span class="k">Name</span><input class="inp sans" id="tmName" placeholder="e.g. Priya S." autocomplete="off"></label>
+        <button class="btn" data-a="addMember">Add</button>
+      </div>
+      <div class="note"><span class="ring"></span><span>SAP ID boxes across the tool suggest these names, fill in the name for you, and warn when an ID isn’t on the list — so a typo can’t hide a review from someone’s queue.</span></div>`, { p: 'ink-2', meta: `${pl(team.members.length, 'person', 'people')}` })}
+    ${unit('Checklist owners', `<div class="small ink2" style="line-height:1.6">${team.owners.length ? `Only <b>${esc(ownerNames())}</b> can publish the shared checklist. Others can still edit it in their browser and export their changes for an owner.` : 'Nobody is set yet, so <b>anyone</b> connected can publish the checklist. Switch someone on in the Members list to restrict it.'}</div>
+      ${me ? `<div class="note"><span class="ring"></span><span>You ${isOwner(me) ? 'can' : 'can’t'} publish the checklist.</span></div>` : ''}`, { p: 'pen-4' })}
+    </div>
+    <div class="mt">${snippetsUnit()}</div>`;
+}
+function snippetsUnit() {
+  const list = sharedOn() ? team.snippets.map(s => ({ ...s, shared: true })) : store.get('snippets', []).map((t, i) => ({ id: 'L' + i, text: t }));
+  return unit('Saved reviewer comments', `${list.length ? `<div class="rank">${list.map(s => `<div class="rr"><span class="tx" style="white-space:normal">${esc(s.text)}</span><span class="v"><button class="iconbtn x" data-a="delSnippet" data-id="${esc(s.id)}" title="Remove">✕</button></span></div>`).join('')}</div>` : '<div class="empty"><span>No saved comments yet. Save one from any reviewer comment with ☆, or add it here.</span></div>'}
+    <div class="frm" style="margin-top:12px;grid-template-columns:1fr auto;align-items:end"><label class="field"><span class="k">New comment</span><input class="inp sans" id="snipNew" placeholder="e.g. Please remove the commented-out code — the transport history is the backup." autocomplete="off"></label><button class="btn" data-a="addSnippet">Add</button></div>
+    <div class="note"><span class="ring"></span><span>Reviewers get these as suggestions while typing a comment on a check. ${sharedOn() ? 'Shared with the whole team.' : 'Kept in this browser until you connect the shared folder.'}</span></div>`, { p: 'pen-5', meta: `${list.length}` });
+}
+
 const waitingCount = () => { const me = myId(); if (!me || !sharedOn()) return 0; const q = queues(me); return q.review.length + q.changes.length; };
 
 /* ======================================================================
@@ -1626,6 +1960,7 @@ function mountCharts(root, quiet) {
     if (k === 'flow') scope(cv, drawFlow, { anim: true, intro: false });
     else if (k === 'pipe') scope(cv, drawPipe, { intro: !quiet });
     else if (k === 'prog') { const o = JSON.parse(cv.dataset.o); o.col = C[o.pen]; if (o.inner) o.inner.col = C[o.inner.pen]; scope(cv, (c, w, h, t, dt, s, p) => drawProg(c, w, h, t, dt, s, p, o), { intro: !quiet }); }
+    else if (k === 'months') { const ms = insights(ui.period).months; scope(cv, (c, w, h, t, dt, s, p) => drawMonths(c, w, h, t, dt, s, p, ms), { intro: !quiet }); }
     else if (k === 'wfolder' || k === 'wchecks') scope(cv, (c, w, h, t, dt, s, p) => drawWelcome(c, w, h, t, dt, s, p, k === 'wfolder' ? 'folder' : 'checks'), { anim: true });
   }
 }
@@ -1757,19 +2092,19 @@ function paintChrome() {
 /* ============================================================ home */
 function qrowHtml(x) {
   const rev = x.revName || x.revId || x.asgName || x.asgId;
-  const waiting = x.stage === 'submitted' || x.stage === 'changes';
-  const age = waiting ? daysSince(x.updatedAt) : 0;
+  const waiting = waitingOf(x), since = waiting ? x.waitSince || x.updatedAt : x.updatedAt;
+  const age = waiting ? daysSince(since) : 0;
   return `<div class="qrow" data-a="openShared" data-file="${esc(x.file)}" title="Open ${esc(x.ticket)}">
     <div style="min-width:0"><div class="t1"><b>${esc(x.ticket || 'Untitled')}</b>${esc(x.title)}</div>
       <div class="t2">${esc(x.devName || x.devId || '—')}${rev ? ` → ${esc(rev)}` : ''}${x.objs?.length ? ` · ${esc(x.objs.slice(0, 2).join(', '))}${x.objs.length > 2 ? ` +${x.objs.length - 2}` : ''}` : ''}</div></div>
     <div class="qs">${stageKb(x.stage, x.round)}${x.copies?.length ? `<span class="kb" style="--pen:var(--watch)" title="OneDrive kept conflicting copies: ${esc(x.copies.join(', '))}"><i></i>${x.copies.length + 1} copies</span>` : ''}
-      <span class="age${waiting && age >= 3 ? ' old' : ''}" title="Last saved ${esc(fmtWhen(x.updatedAt))}">${waiting ? 'waiting ' : ''}${ageText(x.updatedAt)}</span></div>
+      ${lockBadge(x.id)}<span class="qacts">${remindBtn(x)}<span class="age${waiting && age >= 3 ? ' old' : ''}" title="${waiting ? 'Waiting since' : 'Last saved'} ${esc(fmtWhen(since))}">${waiting ? 'waiting ' : ''}${ageText(since)}</span></span></div>
   </div>`;
 }
 function heroHtml() {
   const me = myId(), q = me ? queues(me) : null, n = q ? q.review.length + q.changes.length : 0;
   const R = shared.reviews;
-  const inRev = R.filter(x => x.stage === 'submitted').length, fixing = R.filter(x => x.stage === 'changes').length, appr = R.filter(x => x.stage === 'approved' && daysSince(x.updatedAt) <= 30).length;
+  const inRev = R.filter(x => x.stage === 'submitted').length, fixing = R.filter(x => x.stage === 'changes').length, appr = R.filter(x => x.stage === 'approved' && daysSince(x.approvedAt || x.updatedAt) <= 30).length;
   return `<div class="lbl">${me ? `Waiting on you · ${esc(me)}` : 'Who are you?'}</div>
     <h1>${!me ? 'Set your SAP ID to see your queue' : n ? `<b>${n}</b> review${n === 1 ? '' : 's'} waiting on you` : 'Nothing is waiting on you'}</h1>
     <div class="sub">${me ? `<b>${q.review.length}</b> to review · <b>${q.changes.length}</b> sent back to you · <b>${q.drafts.length}</b> draft${q.drafts.length === 1 ? '' : 's'} of yours` : `<button class="btn sm" data-a="who">Set your SAP ID</button>`}<br>
@@ -1787,18 +2122,18 @@ function queuesHtml() {
 }
 function allReviewsHtml() {
   const q = ui.sharedQ.trim().toLowerCase();
-  const stOk = x => ui.sharedStage === 'all' || (ui.sharedStage === 'open' ? x.stage !== 'approved' : x.stage === ui.sharedStage);
+  const stOk = x => ui.sharedStage === 'all' || (ui.sharedStage === 'open' ? x.stage !== 'approved' && x.stage !== 'withdrawn' : x.stage === ui.sharedStage);
   const list = shared.reviews.filter(x => stOk(x) && (!q || [x.ticket, x.title, x.module, x.devId, x.devName, x.revId, x.revName, x.asgId, x.asgName, ...(x.objs || []), ...(x.trs || [])].join(' ').toLowerCase().includes(q)));
-  const stages = [['open', 'Open'], ['all', 'All'], ['draft', 'Drafts'], ['submitted', 'In review'], ['changes', 'Being fixed'], ['approved', 'Approved']];
+  const stages = [['open', 'Open'], ['all', 'All'], ['draft', 'Drafts'], ['submitted', 'In review'], ['changes', 'Being fixed'], ['approved', 'Approved'], ['withdrawn', 'Withdrawn']];
   const rows = list.slice(0, 300).map(x => {
-    const rev = x.revName || x.revId || x.asgName || x.asgId, waiting = x.stage === 'submitted' || x.stage === 'changes';
+    const rev = x.revName || x.revId || x.asgName || x.asgId, waiting = waitingOf(x), since = waiting ? x.waitSince || x.updatedAt : x.updatedAt, old = waiting && daysSince(since) >= 3;
     return `<tr class="link" data-a="openShared" data-file="${esc(x.file)}"><td><div class="nm">${esc(x.ticket || 'Untitled')}</div><div class="sub">${esc(x.title)}</div></td>
       <td>${esc(x.devName || x.devId || '—')}</td><td>${esc(rev || '—')}</td>
-      <td>${stageKb(x.stage, x.round)}${x.copies?.length ? ` <span class="kb" style="--pen:var(--watch)" title="${esc(x.copies.join(', '))}"><i></i>${x.copies.length + 1} copies</span>` : ''}</td>
-      <td class="num ${waiting && daysSince(x.updatedAt) >= 3 ? '' : 'dim'}" style="${waiting && daysSince(x.updatedAt) >= 3 ? 'color:var(--watch)' : ''}">${ageText(x.updatedAt)}</td></tr>`;
+      <td>${stageKb(x.stage, x.round)}${x.copies?.length ? ` <span class="kb" style="--pen:var(--watch)" title="${esc(x.copies.join(', '))}"><i></i>${x.copies.length + 1} copies</span>` : ''} ${lockBadge(x.id)}</td>
+      <td class="num${old ? '' : ' dim'}" style="${old ? 'color:var(--watch)' : ''}" title="${waiting ? 'Waiting since' : 'Last saved'} ${esc(fmtWhen(since))}">${waiting ? 'waiting ' : ''}${ageText(since)}</td><td class="num">${remindBtn(x)}</td></tr>`;
   }).join('');
   return `<div class="chips" style="margin-bottom:10px">${stages.map(([k, l]) => `<button class="chip${ui.sharedStage === k ? ' on' : ''}" data-a="sharedStage" data-v="${k}">${l}</button>`).join('')}</div>
-    ${unit(`Reviews in the folder`, list.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ticket</th><th>Developer</th><th>Reviewer</th><th>Status</th><th class="num">Last saved</th></tr></thead><tbody>${rows}</tbody></table></div>${list.length > 300 ? `<div class="dim small" style="margin-top:8px">Showing the newest 300 of ${list.length}. Search to narrow it down.</div>` : ''}`
+    ${unit(`Reviews in the folder`, list.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ticket</th><th>Developer</th><th>Reviewer</th><th>Status</th><th class="num">Age</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>${list.length > 300 ? `<div class="dim small" style="margin-top:8px">Showing the newest 300 of ${list.length}. Search to narrow it down.</div>` : ''}`
       : `<div class="empty"><b>${shared.reviews.length ? 'No reviews match' : 'No reviews in the folder yet'}</b><span>${shared.reviews.length ? 'Try another filter or search.' : 'Start one and it is saved here for the whole team.'}</span></div>`, { p: 'pen-2', meta: `${list.length} of ${shared.reviews.length}` })}`;
 }
 function paintShared() {
@@ -1833,7 +2168,7 @@ function vHome() {
     <section class="unit hero rise" style="--pen:var(--pen-2)"><canvas class="bg" data-ch="flow"></canvas><div class="hero-in" id="heroIn">${heroHtml()}</div><div class="pipe"><canvas data-ch="pipe"></canvas></div></section>
     <div id="qBox">${queuesHtml()}</div>
     <div class="sech rise"><span class="lbl">All reviews</span></div>
-    <div class="allhead rise"><input class="inp sans" type="search" id="sharedQ" data-sq="1" placeholder="Filter by ticket, title, person, object or transport…" value="${esc(ui.sharedQ)}"></div>
+    <div class="allhead rise"><input class="inp sans" type="search" id="sharedQ" data-sq="1" placeholder="Filter by ticket, title, person, object or transport…" value="${esc(ui.sharedQ)}"><span class="sp"></span><button class="btn sm" data-a="exportCsv">Export CSV</button></div>
     <div id="sharedAll">${allReviewsHtml()}</div>
     <div class="note rise"><span class="ring"></span><span>Checklist: <b>${esc(TPL.name)}</b> v${esc(TPL.version)}${BASE.source === 'shared' ? (tplIsCustom() ? ' with your unpublished changes' : ', shared from this folder') : tplIsCustom() ? ', customised in this browser' : ', built into this copy'}. <button class="btn sm ghost" data-a="nav" data-v="checklist">Checklist setup</button></span></div>
     ${localListHtml()}`;
@@ -1898,12 +2233,17 @@ function devChecks(d) {
     list.push({ ok: open === 0, t: open ? `${pl(open, 'flagged check')} need${open === 1 ? 's' : ''} your answer` : 'Reviewer findings answered' });
   }
   if (d.assignee.id && sameId(d.assignee.id, d.header.devId)) list.push({ ok: false, soft: true, t: 'The reviewer is the same person as the developer' });
+  if (team.members.length) {
+    if (d.header.devId && !memberOf(d.header.devId)) list.push({ ok: false, soft: true, t: `${d.header.devId} isn’t on the team list` });
+    if (d.assignee.id && !memberOf(d.assignee.id)) list.push({ ok: false, soft: true, t: `Reviewer ${d.assignee.id} isn’t on the team list — check the ID` });
+  }
   return list;
 }
 function devBanners(d) {
   const out = [];
   if (d.stage === 'changes') out.push(`<div class="banner" style="--pen:var(--bad)"><span class="ic"></span><span><b>Changes requested — round ${d.round}.</b> ${esc(revWho(d))}${d.review.date ? ' on ' + fmtDate(d.review.date) : ''}. Fix the flagged checks below, answer each one, then resubmit.${d.review.comment ? `<div class="q">“${esc(d.review.comment)}”</div>` : ''}</span><span></span></div>`);
   if (d.stage === 'submitted') out.push(`<div class="banner" style="--pen:var(--watch)"><span class="ic"></span><span><b>With the reviewer — read-only.</b> ${sharedOn() ? 'It is in their queue now.' : 'Your reviewer has the file you sent.'} To change something, recall it first: it becomes a draft again until you resubmit.</span><button class="btn" data-a="recall">Recall to edit</button></div>`);
+  if (devEditable(d)) { const lb = lockBanner(d); if (lb) out.push(lb); }
   const me = myId();
   if (devEditable(d) && me && d.header.devId && !sameId(d.header.devId, me) && d.history.length) out.push(`<div class="banner" style="--pen:var(--pen-4)"><span class="ic"></span><span>This review belongs to <b>${esc(devWho(d))}</b>. You can edit it, but they may be working on it too.</span><span></span></div>`);
   return out.length ? `<div class="banners rise">${out.join('')}</div>` : '';
@@ -1941,13 +2281,13 @@ function vDev() {
         ${fld('Creation date', 'header.created', { type: 'date', mono: true })}
         ${fld('Short title', 'header.title', { wide: true, ph: 'e.g. Leave balance report — add carry-forward column' })}
         ${fld('What changed and why', 'header.summary', { area: true, wide: true, rows: 3, ph: 'A few lines for the reviewer: scope, approach, anything risky or worth a closer look.' })}
-        ${fld('Developer SAP ID', 'header.devId', { req: true, mono: true })}
+        ${fld('Developer SAP ID', 'header.devId', { req: true, mono: true, list: 'dl-team' })}
         ${fld('Developer name', 'header.devName')}
-        ${fld('Reviewer SAP ID', 'assignee.id', { mono: true, ph: 'Optional', help: 'Puts the review in their “Needs my review” list.' })}
+        ${fld('Reviewer SAP ID', 'assignee.id', { mono: true, ph: 'Optional', list: 'dl-team', help: team.members.length ? 'Pick from the team list. It puts the review in their “Needs my review” list.' : 'Puts the review in their “Needs my review” list.' })}
         ${fld('Reviewer name', 'assignee.name', { ph: 'Optional' })}
         ${sysField('System/Client — development', 'header.devSystem', { ph: 'e.g. DEV.100', help: 'Usually one. Press Enter to add another.' })}
         ${sysField('Systems/Clients — import required', 'header.importSystem', { wide: true, ph: 'e.g. QAS.200', help: 'Add every target system. Enter or comma adds each one.' })}
-      </div><datalist id="dl-sys">${store.get('sysHistory', []).map(x => `<option value="${esc(x)}">`).join('')}</datalist><datalist id="dl-modules">${MODULES.map(m => `<option value="${m}">`).join('')}</datalist>`, { p: 'pen-6' })}
+      </div><datalist id="dl-sys">${store.get('sysHistory', []).map(x => `<option value="${esc(x)}">`).join('')}</datalist><datalist id="dl-modules">${MODULES.map(m => `<option value="${m}">`).join('')}</datalist>${teamDl()}`, { p: 'pen-6' })}
 
     ${unit('<span class="no">02</span> Objects', `<div class="tbl-wrap"><table class="tbl ed"><thead><tr><th style="width:36%">Object name</th><th style="width:30%">Type</th><th>Note</th><th></th></tr></thead><tbody>
       ${d.objects.map((o, i) => `<tr>
@@ -1957,7 +2297,7 @@ function vDev() {
         <td>${d.objects.length > 1 ? `<button class="iconbtn x" data-a="delObj" data-i="${i}" title="Remove">✕</button>` : ''}</td>
       </tr>`).join('')}
       </tbody></table></div>
-      <div class="addrow"><button class="btn sm" data-a="addObj">＋ Add object</button></div>`, { p: 'pen-6', meta: 'the type suggests which checklist sections apply' })}
+      <div class="addrow"><button class="btn sm" data-a="addObj">＋ Add object</button></div><div id="seenBox">${seenHtml(d)}</div>`, { p: 'pen-6', meta: 'the type suggests which checklist sections apply' })}
 
     ${unit('<span class="no">03</span> Transport requests', `<div class="tbl-wrap"><table class="tbl ed"><thead><tr><th style="width:26%">Transport request</th><th style="width:22%">Source system/client</th><th>Note</th><th></th></tr></thead><tbody>
       ${d.transports.map((t, i) => `<tr>
@@ -2005,7 +2345,8 @@ function devItem(i) {
        ${it.rev.s === 'N' || it.rev.c ? `<input class="inp sans cmt" data-b="items.${i.id}.reply" value="${esc(it.reply)}" placeholder="Your response to the reviewer${it.rev.s === 'N' ? ' (required)' : ''}">` : ''}`
     : '';
   return `<div class="item${on ? ' on' : ''}" data-q="${esc((i.id + ' ' + i.text).toLowerCase())}">
-    <label class="item-top"><input type="checkbox" class="ck" style="--pen:var(--pen-6)" data-a="selItem" data-id="${esc(i.id)}" ${on ? 'checked' : ''}><span class="num">${i.n}</span><span>${esc(i.text)}${it?.by === 'rev' ? ' <span class="kb" style="--pen:var(--pen-5)"><i></i>Added by reviewer</span>' : ''}</span><span></span></label>
+    <label class="item-top"><input type="checkbox" class="ck" style="--pen:var(--pen-6)" data-a="selItem" data-id="${esc(i.id)}" ${on ? 'checked' : ''}><span class="num">${i.n}</span><span>${esc(i.text)}${it?.by === 'rev' ? ' <span class="kb" style="--pen:var(--pen-5)"><i></i>Added by reviewer</span>' : ''}</span><span>${guideBtn(i.id)}</span></label>
+    ${guideBlock(i.id)}
     ${on ? `<div class="item-x">${seg('devS', i.id, it.dev.s)}
       <input class="inp sans cmt" data-b="items.${i.id}.dev.c" value="${esc(it.dev.c)}" placeholder="${it.dev.s === 'N' ? 'Why not followed? (required)' : 'Developer comment (optional)'}">
       ${revNote}</div>` : ''}
@@ -2019,9 +2360,11 @@ function devSide() {
   const actions = editable
     ? `<button class="btn pri block" data-a="submit" ${ready ? '' : 'disabled'}>${d.stage === 'changes' ? `Resubmit — round ${d.round + 1}` : sharedOn() ? 'Send for review' : 'Save file for reviewer'}</button>
        <button class="btn block" data-a="saveDraft">${sharedOn() ? 'Save draft to folder' : 'Save draft file'} <kbd>Ctrl S</kbd></button>
-       <button class="btn ghost block" data-a="nav" data-v="report">Preview the document</button>`
+       <button class="btn ghost block" data-a="nav" data-v="report">Preview the document</button>
+       ${d.history.length || d.shared ? '<button class="btn ghost danger block" data-a="withdraw">Withdraw review…</button>' : ''}`
     : `<button class="btn block" data-a="recall" ${d.stage === 'submitted' ? '' : 'disabled'}>Recall to edit</button>
-       <button class="btn ghost block" data-a="nav" data-v="report">See the document</button>`;
+       <button class="btn ghost block" data-a="nav" data-v="report">See the document</button>
+       <button class="btn ghost danger block" data-a="withdraw">Withdraw review…</button>`;
   return `${unit(editable ? 'Ready to send?' : 'Status', `${editable ? readyList(checks) : `<div class="ready"><div class="rd"><i style="border-color:var(--watch)"></i><span>${d.stage === 'submitted' ? 'Waiting for the reviewer.' : 'Approved — nothing more to do here.'}</span></div></div>`}<div class="sideacts">${actions}</div>`, { p: 'pen-6' })}
     ${unit('Checklist', `<div class="ringbox"><canvas data-ch="prog" data-o='${esc(JSON.stringify(o))}'></canvas>
       <div class="legend"><span style="--pen:var(--good)"><i></i>Followed<b>${n('F')}</b></span><span style="--pen:var(--bad)"><i></i>Not followed<b>${n('N')}</b></span><span style="--pen:var(--ink-3)"><i></i>N/A<b>${n('NA')}</b></span><span style="--pen:var(--ink-4)"><i></i>To assess<b>${sel.length - done}</b></span></div></div>
@@ -2045,6 +2388,7 @@ function revChecks(d) {
   ];
   if (sameId(d.review.revId, d.header.devId)) list.push({ ok: false, soft: true, t: 'Reviewer ID is the same as the developer’s' });
   if (d.assignee.id && d.review.revId && !sameId(d.assignee.id, d.review.revId)) list.push({ ok: false, soft: true, t: `Assigned to ${who(d.assignee.id, d.assignee.name)}, not you` });
+  if (team.members.length && d.review.revId && !memberOf(d.review.revId)) list.push({ ok: false, soft: true, t: `${d.review.revId} isn’t on the team list` });
   return list;
 }
 function vRev() {
@@ -2058,6 +2402,12 @@ function vRev() {
   if (tampered) banners.push(`<div class="banner" style="--pen:var(--bad)"><span class="ic"></span><span><b>This file was changed after the developer sent it.</b> The developer’s section no longer matches the fingerprint taken when it was submitted. Check with ${esc(devWho(d))} that you have the right file.</span><span></span></div>`);
   if (d.round > 1) banners.push(`<div class="banner" style="--pen:var(--pen-5)"><span class="ic"></span><span><b>Round ${d.round}.</b> Changes were requested in round ${lastRound?.round}. Checks flagged then are reset for you to check again, with the developer’s answers under each one. Transports need ticking again too.</span><span></span></div>`);
   const ro = (k, v, sans) => `<div class="ro"><span class="k">${k}</span><span class="v${sans ? ' sans' : ''}">${v || '<span class="dim">—</span>'}</span></div>`;
+  const lb = lockBanner(d); if (lb) banners.unshift(lb);
+  const me = myId();
+  if (sharedOn() && me && !sameId(d.header.devId, me)) {
+    if (!d.assignee.id) banners.push(`<div class="banner" style="--pen:var(--pen-5)"><span class="ic"></span><span><b>Not assigned to anyone.</b> Claim it so the rest of the team can see you have it.</span><button class="btn" data-a="claim">Claim it</button></div>`);
+    else if (!sameId(d.assignee.id, me)) banners.push(`<div class="banner" style="--pen:var(--pen-4)"><span class="ic"></span><span>Assigned to <b>${esc(who(d.assignee.id, d.assignee.name))}</b>. Check with them before you review it.</span><button class="btn ghost" data-a="claim">Take it over</button></div>`);
+  }
 
   return `<div class="th rise" style="--pen:var(--pen-5)"><div><div class="no">03 · REVIEWER</div><h1><span class="tk">${esc(h.ticket)}</span>${h.title ? `<span class="t">${esc(h.title)}</span>` : ''}</h1></div>
       <div class="acts">${stageKb(d.stage, d.round)}</div></div>
@@ -2072,6 +2422,7 @@ function vRev() {
       <div class="tbl-wrap" style="margin-top:12px"><table class="tbl ro"><thead><tr><th>Object</th><th>Type</th><th>Note</th></tr></thead><tbody>
         ${d.objects.filter(o => o.name).map(o => `<tr><td class="nm">${esc(o.name)}</td><td>${esc(typeLabelOf(o))}</td><td>${esc(o.note)}</td></tr>`).join('')}
       </tbody></table></div>
+      ${seenHtml(d)}
       ${d.backupOn && d.backup.length ? `<details class="more"><summary>Version backup (${d.backup.length})</summary>
         <div class="tbl-wrap"><table class="tbl ro"><thead><tr><th>Object</th><th>System</th><th>Dev</th><th>PreProd</th><th>Prod</th></tr></thead><tbody>
         ${d.backup.map(b => `<tr><td class="nm">${esc(b.object)}</td><td>${esc(b.system)}</td><td class="mono">${esc(b.dev)}</td><td class="mono">${esc(b.preprod)}</td><td class="mono">${esc(b.prod)}</td></tr>`).join('')}
@@ -2088,11 +2439,11 @@ function vRev() {
       </div>`; }).join('')}</div>` : '<div class="empty"><span>The developer listed no transport requests.</span></div>', { p: 'pen-5', meta: `<span id="trCount">${nChecked} / ${trs.length} checked</span>` })}
 
     ${unit('<span class="no">03</span> Reviewer details', `<div class="frm">
-        ${fld('Check performed by (SAP ID)', 'review.revId', { req: true, mono: true })}
+        ${fld('Check performed by (SAP ID)', 'review.revId', { req: true, mono: true, list: 'dl-team' })}
         ${fld('Reviewer name', 'review.revName')}
         ${fld('Review date', 'review.date', { type: 'date', req: true, mono: true })}
         ${fld('Review effort (person hours)', 'review.effort', { type: 'number', req: true, ph: 'e.g. 1.5', mono: true })}
-      </div>`, { p: 'pen-5' })}
+      </div>${teamDl()}${snipDl()}`, { p: 'pen-5' })}
 
     ${unit('<span class="no">04</span> Checks', `<div class="tools">
         <div class="chips">${[['all', 'All'], ['pending', 'To review'], ['issues', 'Not followed']].map(([k, l]) => `<button class="chip${ui.revFilter === k ? ' on' : ''}" data-a="revFilter" data-v="${k}">${l}</button>`).join('')}</div>
@@ -2121,13 +2472,14 @@ function revItem(i) {
   const prev = lr?.items?.[i.id];
   return `<div class="item rv st-${it.rev.s || 'none'}">
     <div class="item-top"><span class="num">${i.n}</span><span>${esc(i.text)}</span>
-      <span>${it.by === 'rev' ? `<span class="kb" style="--pen:var(--pen-5)"><i></i>Added by reviewer</span>${isThisRoundRevAdd(d, it) ? ` <button class="iconbtn x" data-a="unMissed" data-id="${esc(i.id)}" title="Remove this added check">✕</button>` : ''}` : ''}</span></div>
+      <span class="hstack" style="gap:6px;flex-wrap:nowrap">${guideBtn(i.id)}${it.by === 'rev' ? `<span class="kb" style="--pen:var(--pen-5)"><i></i>Added by reviewer</span>${isThisRoundRevAdd(d, it) ? ` <button class="iconbtn x" data-a="unMissed" data-id="${esc(i.id)}" title="Remove this added check">✕</button>` : ''}` : ''}</span></div>
+    ${guideBlock(i.id)}
     <div class="rv-grid">
       <div class="rv-col"><span class="lbl">Developer</span>${chip(it.dev.s)}${it.dev.c ? `<p class="cm">${esc(it.dev.c)}</p>` : ''}
         ${prev && (prev.s === 'N' || prev.c || prev.reply) ? `<div class="prev">Round ${lr.round} review: ${STATUS[prev.s]?.label || '—'}${prev.c ? ` — ${esc(prev.c)}` : ''}${prev.reply ? `<br>Developer’s answer: ${esc(prev.reply)}` : ''}</div>` : ''}
       </div>
       <div class="rv-col"><span class="lbl">Reviewer</span>${seg('revS', i.id, it.rev.s)}
-        <input class="inp sans cmt" data-b="items.${i.id}.rev.c" value="${esc(it.rev.c)}" placeholder="${it.rev.s === 'N' ? 'What needs fixing? (required)' : 'Reviewer comment (optional)'}">
+        <div class="hstack" style="width:100%;flex-wrap:nowrap;gap:4px"><input class="inp sans cmt" list="dl-snip" data-b="items.${i.id}.rev.c" value="${esc(it.rev.c)}" placeholder="${it.rev.s === 'N' ? 'What needs fixing? (required) — saved comments are suggested' : 'Reviewer comment (optional)'}"><button class="iconbtn" data-a="saveSnippet" data-p="items.${i.id}.rev.c" title="Save this comment for reuse">☆</button></div>
       </div>
     </div>
   </div>`;
@@ -2163,7 +2515,7 @@ const REPORT_CSS = `
 .rp .st{white-space:nowrap;font-weight:600}
 .rp .st.F{color:#0E7C63}.rp .st.N{color:#C2361C}.rp .st.NA{color:#5e6778}
 .rp .stamp{display:inline-block;border:2px solid;padding:1px 9px;font-weight:700;letter-spacing:.08em;font-size:11.5px;border-radius:3px;vertical-align:middle;margin-left:8px}
-.rp .stamp.approved{color:#0E7C63}.rp .stamp.changes{color:#C2361C}.rp .stamp.submitted{color:#8a5a00}.rp .stamp.draft{color:#5e6778}
+.rp .stamp.withdrawn{color:#8A8F99}.rp .stamp.approved{color:#0E7C63}.rp .stamp.changes{color:#C2361C}.rp .stamp.submitted{color:#8a5a00}.rp .stamp.draft{color:#5e6778}
 .rp .mono{font-family:"Cascadia Mono",Consolas,monospace}
 .rp .tag{font-size:11px;color:#8a5a00;font-weight:600}
 .rp .pre{white-space:pre-wrap}
@@ -2222,7 +2574,7 @@ function reportHTML(d) {
 
   ${d.history.length ? `<h3>History</h3>${tbl(['When', 'Who', 'Action', 'Note'], d.history.map(x => `<tr><td style="white-space:nowrap">${fmtWhen(x.at)}</td><td>${esc(x.who)}</td><td>${esc(x.action)}</td><td class="pre">${esc(x.note)}</td></tr>`))}` : ''}
 
-  <div class="foot">Generated by Code Review Desk · checklist “${esc(d.template.name)}” v${esc(d.template.version)} · developer fingerprint ${devSealState} · review fingerprint ${revSealState}</div>
+  <div class="foot">Generated by Code Review Desk · checklist “${esc(d.template.name)}” v${esc(d.template.version)} · developer fingerprint ${devSealState} · review fingerprint ${revSealState} · fingerprints show whether the file was edited outside the tool; they are not signatures</div>
   </div>`;
 }
 function wikiMarkup(d) {
@@ -2279,7 +2631,9 @@ function vReport() {
     ? `<div class="banner archive" style="--pen:var(--good)"><span class="ic"></span><span><b>Approved — archive it on Confluence.</b>
       <ol><li>Create a page, e.g. <b>CR · ${esc(d.header.ticket)}${d.header.title ? ' · ' + esc(d.header.title) : ''}</b>.</li>
       <li><b>Copy for Confluence</b> and paste into the page (or <b>Copy wiki markup</b> → Insert › Markup).</li>
-      <li>Attach the archive .html${sharedOn() ? ` — a copy is already in <b class="mono">${esc(shared.name)}/archive</b>` : ''}. It shows the review and reopens in this tool.</li></ol></span><span></span></div>`
+      <li>Attach the archive .html${sharedOn() ? ` — a copy is already in <b class="mono">${esc(shared.name)}/archive</b>` : ''}. It shows the review and reopens in this tool.</li></ol></span><button class="btn ghost" data-a="reopen" title="A problem turned up after approval">Reopen…</button></div>`
+    : d.stage === 'withdrawn'
+    ? `<div class="banner" style="--pen:var(--ink-3)"><span class="ic"></span><span><b>Withdrawn.</b> ${esc([...d.history].reverse().find(x => x.action === 'Withdrawn')?.who || '')}${(() => { const w = [...d.history].reverse().find(x => x.action === 'Withdrawn'); return w ? ` on ${fmtDate(w.at)}: <i>“${esc(w.note)}”</i>` : ''; })()} It is out of every queue and kept for the record.</span><button class="btn" data-a="restore">Restore as a draft</button></div>`
     : `<div class="banner" style="--pen:var(--pen-3)"><span class="ic"></span><span><b>Preview.</b> This is how the finished document will look. It is marked ${esc(STAGES[d.stage].stamp)} until the reviewer approves it.</span><span></span></div>`;
   return `<div class="th rise" style="--pen:var(--pen-3)"><div><div class="no">04 · DOCUMENT</div><h1><span class="tk">${esc(d.header.ticket || 'New review')}</span>${d.header.title ? `<span class="t">${esc(d.header.title)}</span>` : ''}${d.stage === 'approved' ? ` <span class="stamp in" style="--pen:var(--good)">APPROVED</span>` : ''}</h1></div>
       <div class="acts"><button class="btn pri" data-a="copyRich">Copy for Confluence</button><button class="btn" data-a="copyWiki">Copy wiki markup</button><button class="btn" data-a="dlHtml">Archive .html</button><button class="btn" data-a="print">Print / PDF</button><button class="btn ghost" data-a="dlJson">Download .json</button></div></div>
@@ -2297,18 +2651,20 @@ function tplStateHtml() {
     const m = shared.tplMeta || {};
     const stale = store.get('template.stale') ? `<div class="banner" style="--pen:var(--pen-2)"><span class="ic"></span><span><b>You had earlier local edits.</b> They were made against a different checklist, so the shared one is shown.</span><span class="hstack"><button class="btn sm" data-a="tplRestoreStale">Restore my edits</button><button class="btn sm ghost" data-a="tplDropStale">Discard them</button></span></div>` : '';
     const newer = shared.newerTpl ? `<div class="banner" style="--pen:var(--watch)"><span class="ic"></span><span><b>Someone published a newer checklist.</b> Publishing yours will replace it. Discard your changes to load theirs.</span><span></span></div>` : '';
-    if (!tplIsCustom()) return `<div class="hstack">${badge('Shared checklist', 'good')}${counts}</div>${line(`From <b class="mono">${esc(shared.name)}/checklist.json</b>${m.publishedBy ? `, published by <b>${esc(m.publishedBy)}</b>` : ''}${m.publishedAt ? ` on ${fmtWhen(m.publishedAt)}` : ''}. Everyone connected to this folder uses it.`)}${stale}`;
-    return `<div class="hstack">${badge('Unpublished changes', 'watch')}${counts}</div>${line('Only you can see these edits until you <b>Publish to shared folder</b>.')}${newer}${stale}`;
+    if (!tplIsCustom()) return ownersLine + `<div class="hstack">${badge('Shared checklist', 'good')}${counts}</div>${line(`From <b class="mono">${esc(shared.name)}/checklist.json</b>${m.publishedBy ? `, published by <b>${esc(m.publishedBy)}</b>` : ''}${m.publishedAt ? ` on ${fmtWhen(m.publishedAt)}` : ''}. Everyone connected to this folder uses it.`)}${stale}`;
+    return `<div class="hstack">${badge('Unpublished changes', 'watch')}${counts}</div>${line('Only you can see these edits until you <b>Publish to shared folder</b>.')}${ownersLine}${newer}${stale}`;
   }
+  const ownersLine = sharedOn() && team.owners.length ? line(isOwner(myId()) ? `You are a checklist owner (owners: ${esc(ownerNames())}).` : `Only checklist owners can publish: <b>${esc(ownerNames())}</b>. Export your changes and send them to an owner.`) : '';
   const noShared = sharedOn() && shared.tplExists === false ? line(`The shared folder <b class="mono">${esc(shared.name)}</b> has no checklist yet. <b>Publish to shared folder</b> so everyone uses this one.`) : '';
-  if (!tplIsCustom()) return `<div class="hstack">${badge('Built-in checklist', 'ink-3')}${counts}</div>${noShared}`;
+  if (!tplIsCustom()) return `<div class="hstack">${badge('Built-in checklist', 'ink-3')}${counts}</div>${noShared}${ownersLine}`;
   return `<div class="hstack">${badge('Customised in this browser', 'watch')}${counts}</div>
-    ${noShared || line('Your changes are saved in this browser as you type. To give everyone the same checklist, connect a shared folder and publish it, or use <b>Download tool with this checklist</b>.')}
+    ${ownersLine}${noShared || line('Your changes are saved in this browser as you type. To give everyone the same checklist, connect a shared folder and publish it, or use <b>Download tool with this checklist</b>.')}
     ${tplBasedOnOld() ? `<div class="banner" style="--pen:var(--watch)"><span class="ic"></span><span><b>This copy of the tool has a different built-in checklist.</b> Your customisation was made on another version. Reset to built-in to use this file’s checklist, or keep yours.</span><span></span></div>` : ''}`;
 }
 function tplActionsHtml() {
   const sharedBase = BASE.source === 'shared';
-  return `${sharedOn() ? `<button class="btn pri" data-a="tplPublish" ${sharedBase && !tplIsCustom() ? 'disabled' : ''}>Publish to shared folder</button>` : ''}
+  const owner = isOwner(myId());
+  return `${sharedOn() ? `<button class="btn pri" data-a="tplPublish" ${(sharedBase && !tplIsCustom()) || !owner ? 'disabled' : ''} title="${owner ? '' : 'Only checklist owners can publish: ' + esc(ownerNames())}">Publish to shared folder</button>` : ''}
     <button class="btn${sharedOn() ? '' : ' pri'}" data-a="tplBake">Download tool with this checklist</button>
     <button class="btn" data-a="tplExport">Export .json</button>
     <button class="btn" data-a="openFile">Import…</button>
@@ -2352,11 +2708,13 @@ function vSetup() {
         ${btns('tplSec', si, t.sections.length)}
       </div>
       <div class="sec-b">
-        ${s.items.map((it, ii) => `<div class="titem">
+        ${s.items.map((it, ii) => { const g = !!(it.why || it.ex), open = !!ui.tplGuide[it.id]; return `<div class="titem">
           <span class="num">${ii + 1}</span>
           <textarea class="inp" rows="1" data-t="sections.${si}.items.${ii}.text" placeholder="Describe the check, e.g. “Selection screen inputs are validated in AT SELECTION-SCREEN.”">${esc(it.text)}</textarea>
-          ${btns('tplItem', ii, s.items.length, `data-si="${si}"`)}
-        </div>`).join('')}
+          <div class="hstack" style="gap:2px;flex-wrap:nowrap;padding-top:6px"><span role="button" tabindex="0" class="gbtn${g ? ' has' : ''}${open ? ' on' : ''}" data-a="tplGuide" data-id="${esc(it.id)}" title="${g ? 'Edit the guidance' : 'Add guidance: why it matters, and an example'}">?</span>${btns('tplItem', ii, s.items.length, `data-si="${si}"`)}</div>
+          ${open ? `<div class="gedit"><label class="field"><span class="k">Why it matters</span><textarea class="inp" rows="2" data-t="sections.${si}.items.${ii}.why" placeholder="e.g. An empty driver table makes FOR ALL ENTRIES read the whole table.">${esc(it.why || '')}</textarea></label>
+            <label class="field"><span class="k">Example — good / bad</span><textarea class="inp" style="font-family:var(--mono);font-size:11.5px" rows="3" data-t="sections.${si}.items.${ii}.ex" placeholder="e.g. IF lt_pernr IS NOT INITIAL. SELECT … FOR ALL ENTRIES IN lt_pernr …">${esc(it.ex || '')}</textarea></label></div>` : ''}
+        </div>`; }).join('')}
         <div class="titem add"><button class="btn sm" data-a="tplAddItem" data-i="${si}">＋ Add check</button></div>
       </div>
     </div>`).join('')}</div>
@@ -2393,7 +2751,7 @@ function render(anim = false) {
   let sel = null; try { sel = aid ? [a.selectionStart, a.selectionEnd] : null; } catch { /* inputs without a caret */ }
   hideTip();
   let html = '';
-  try { html = ({ home: vHome, dev: vDev, rev: vRev, report: vReport, checklist: vSetup })[view](); }
+  try { html = ({ home: vHome, dev: vDev, rev: vRev, report: vReport, checklist: vSetup, insights: vInsights, team: vTeam })[view](); }
   catch (err) { console.error(err); html = `<div class="empty"><b>Something went wrong drawing this page</b><span>${esc(err.message)}</span></div>`; }
   host.classList.toggle('anim', !!anim && !reduced);
   host.innerHTML = html;
@@ -2405,6 +2763,7 @@ function render(anim = false) {
   main.scrollTop = keep;
   if (aid) { const n = document.getElementById(aid); if (n) { n.focus(); try { if (sel && sel[0] != null) n.setSelectionRange(sel[0], sel[1]); } catch { /* ignore */ } } }
   paintChrome();
+  syncLock();
 }
 function go(v) { view = v; render(true); }
 function refreshSide() {
@@ -2446,7 +2805,8 @@ function palSearch() {
   const out = [];
   const cmds = [['New review', 'N', () => A.newReview()], ['Open a review file', 'O', () => A.openFile()], ['Reviews', '1', () => go('home')]];
   if (doc) { const t = tabsFor(doc); if (t.dev) cmds.push(['Developer view', '2', () => go('dev')]); if (t.rev) cmds.push(['Reviewer view', '3', () => go('rev')]); cmds.push(['Document', '4', () => go('report')]); }
-  cmds.push(['Checklist setup', '5', () => go('checklist')], ['Set your SAP ID', '', () => askIdentity()], ['Switch theme', '', () => cycleTheme()]);
+  cmds.push(['Checklist setup', '5', () => go('checklist')], ['Insights', '6', () => go('insights')], ['Team list and saved comments', '7', () => go('team')], ['Set your SAP ID', '', () => askIdentity()], ['Switch theme', '', () => cycleTheme()]);
+  if (sharedOn()) cmds.push(['Export all reviews as CSV', '', () => A.exportCsv()]);
   cmds.push(sharedOn() ? ['Check the shared folder now', '', () => sharedRefresh()] : ['Connect a shared folder', '', () => A.sharedConnect()]);
   const pool = reviewPool();
   const open = x => () => x.src === 'shared' ? openShared(x.file) : openLocal(x.id);
@@ -2496,10 +2856,19 @@ $('#palIn').addEventListener('keydown', e => {
 $('#scrim').addEventListener('mousedown', () => closePalette());
 
 /* ============================================================ identity + theme */
+function askReason(title, msg, okLabel) {
+  return new Promise(res => {
+    dlgResolve = res;
+    openDlg(`<h2>${esc(title)}</h2><p>${esc(msg)}</p><label class="field"><span class="k">Reason <b>*</b></span><textarea class="inp" id="reasonIn" rows="3"></textarea></label>
+      <div class="dlg-act"><button class="btn" data-a="dlgNo">Cancel</button><button class="btn pri" data-a="reasonOk">${esc(okLabel)}</button></div>`);
+    setTimeout(() => $('#reasonIn')?.focus(), 30);
+  });
+}
 function askIdentity() {
   openDlg(`<h2>Who are you?</h2>
-    <div class="frm"><label class="field"><span class="k">SAP ID <b>*</b></span><input class="inp" id="idId" value="${esc(myId())}" style="text-transform:uppercase" autocomplete="off"></label>
-    <label class="field"><span class="k">Name</span><input class="inp sans" id="idName" value="${esc(myName())}" placeholder="e.g. Priya S." autocomplete="off"></label></div>
+    <div class="frm"><label class="field"><span class="k">SAP ID <b>*</b></span><input class="inp" id="idId" value="${esc(myId())}" list="dl-team" style="text-transform:uppercase" autocomplete="off"></label>
+    <label class="field"><span class="k">Name</span><input class="inp sans" id="idName" value="${esc(myName())}" placeholder="e.g. Priya S." autocomplete="off"></label></div>${teamDl()}
+    ${sharedOn() && !memberOf(myId()) ? `<label class="tog" style="margin-top:10px"><span>Add me to the team list in <b class="mono">${esc(shared.name)}</b></span><input type="checkbox" class="ck" id="idJoin" checked></label>` : ''}
     <p class="small dim" style="margin-top:12px">Kept only in this browser. Your queue on the home page is built from this ID, and new reviews are filled in with it. Use the same ID your colleagues type when they assign you a review.</p>
     <div class="dlg-act"><button class="btn" data-a="closeDlg">Cancel</button><button class="btn pri" data-a="saveWho">Save</button></div>`);
   setTimeout(() => $('#idId')?.focus(), 30);
@@ -2549,7 +2918,7 @@ async function openLocal(id) {
   }
   doc = migrate(d); ui.collapsed = {};
   const mine = sameId(doc.header.devId, myId());
-  go({ draft: 'dev', submitted: mine ? 'dev' : 'rev', changes: 'dev', approved: 'report' }[doc.stage] || 'dev');
+  go({ draft: 'dev', submitted: mine ? 'dev' : 'rev', changes: 'dev', approved: 'report', withdrawn: 'report' }[doc.stage] || 'dev');
 }
 
 /* ============================================================ actions */
@@ -2560,7 +2929,9 @@ const A = {
   saveWho() {
     const id = ($('#idId')?.value || '').trim().toUpperCase(), name = ($('#idName')?.value || '').trim();
     if (!id) return $('#idId')?.focus();
+    const join = $('#idJoin')?.checked;
     store.set('whoami', id); store.set('whoname', name); closeDlg(); render(); toast(`Hello${name ? ', ' + name : ''} — your queue uses ${id}.`);
+    if (join && sharedOn() && !memberOf(id)) teamOp(t => { if (!t.members.some(m => sameId(m.id, id))) t.members.push({ id, name }); }, 'Added you to the team list.').then(() => render());
   },
   folderPill() {
     if (shared.status === 'needs-permission') return A.sharedReconnect();
@@ -2608,7 +2979,9 @@ const A = {
   async sharedDisconnect() {
     if (!await confirmDlg('Disconnect the shared folder?', 'Nothing in the folder is changed or deleted. This browser keeps a copy of the current checklist, and you can reconnect any time.', 'Disconnect')) return;
     await idb.del('folder');
+    await releaseLock();
     Object.assign(shared, { handle: null, name: '', status: 'off', reviews: [], scannedAt: '', error: '', tplExists: null, tplMeta: {}, newerTpl: false });
+    Object.assign(team, normTeam({}), { exists: false, mod: 0 }); othersLocks = new Map();
     BASE = { tpl: normalizeTpl(BUILTIN_TPL), hash: BUILTIN_HASH, source: 'builtin', mod: 0 };
     if (tplIsCustom()) store.set('template', { tpl: TPL, basedOn: BUILTIN_HASH, savedAt: nowIso() });
     go('home');
@@ -2799,6 +3172,95 @@ const A = {
   async dlHtml() { if (await download(fileName(doc, doc.stage === 'approved' ? 'code-review' : STAGES[doc.stage].stamp.toLowerCase().replace(/\s+/g, '-'), 'html'), standaloneHTML(doc), 'text/html')) toast('Archive saved.'); },
   async dlJson() { if (await download(fileName(doc, doc.stage === 'approved' ? 'approved' : doc.stage), JSON.stringify(doc, null, 1), 'application/json')) toast('Saved a copy.'); },
 
+  /* team features */
+  guide(el, e) {
+    e.preventDefault();
+    const id = el.dataset.id; ui.guideOpen[id] = !ui.guideOpen[id]; el.classList.toggle('on', ui.guideOpen[id]);
+    const b = el.closest('.item')?.querySelector(`[data-guide="${CSS.escape(id)}"]`); if (b) b.hidden = !ui.guideOpen[id];
+  },
+  tplGuide(el) { ui.tplGuide[el.dataset.id] = !ui.tplGuide[el.dataset.id]; render(); },
+  peek(el) { openShared(el.dataset.file); },
+  remind(el) { const x = shared.reviews.find(r => r.file === el.dataset.file); if (x) copyText(reminderText(x), 'Reminder copied — paste it in Teams.'); },
+  async exportCsv() { if (!sharedOn()) return; if (await download(`code-reviews_${todayLocal()}.csv`, reviewsCsv(), 'text/csv')) toast(`Exported ${pl(shared.reviews.length, 'review')}.`); },
+  period(el) { ui.period = el.dataset.v; render(); },
+  copyYear() { if (ui.yirId) copyText(yearText(ui.yirId, ui.yirYear, yearData(ui.yirId, ui.yirYear)), 'Year in review copied.'); },
+  async claim() {
+    doc.assignee = { id: myId(), name: myName() };
+    if (!doc.review.revId || !sameId(doc.review.revId, myId())) { doc.review.revId = myId(); doc.review.revName = myName(); }
+    touched(); render(); await A.saveProgress();
+  },
+  async withdraw() {
+    const mine = !myId() || sameId(doc.header.devId, myId());
+    const reason = await askReason('Withdraw this review?', `${mine ? '' : `You are not the developer of this review (${devWho(doc)}). `}It leaves every queue and is kept as “Withdrawn” with your reason. It can be restored as a draft later.`, 'Withdraw');
+    if (!reason) return;
+    const d = structuredClone(doc), at = nowIso();
+    d.stage = 'withdrawn'; d.updatedAt = at;
+    d.history.push({ at, who: myWho() || devWho(d), role: 'Developer', action: 'Withdrawn', note: reason });
+    const how = await persistReview(d, 'withdrawn');
+    if (!how) return;
+    doc = d; saveLocal(true); go('report'); toast('Withdrawn. It is out of every queue.');
+  },
+  async restore() {
+    if (!await confirmDlg('Restore as a draft?', 'It becomes an editable draft again, back in the developer’s drafts.', 'Restore')) return;
+    const d = structuredClone(doc), at = nowIso();
+    d.stage = 'draft'; d.updatedAt = at;
+    d.history.push({ at, who: myWho() || devWho(d), role: 'Developer', action: 'Restored as a draft', note: '' });
+    const how = await persistReview(d, 'draft');
+    if (!how) return;
+    doc = d; saveLocal(true); go('dev'); toast('Restored as a draft.');
+  },
+  async reopen() {
+    const reason = await askReason('Reopen this approved review?', 'Use this when a problem turns up after approval. It goes back to the developer as “Changes requested”, with your reason added to the reviewer’s comment and the history. The earlier archive copy stays as it was.', 'Reopen');
+    if (!reason) return;
+    const d = structuredClone(doc), at = nowIso(), by = myWho() || 'Someone';
+    d.stage = 'changes'; d.updatedAt = at; d.review.verdict = 'changes';
+    d.review.comment = `${d.review.comment ? d.review.comment + '\n\n' : ''}Reopened after approval by ${by} on ${fmtDate(at)}: ${reason}`;
+    d.history.push({ at, who: by, role: 'Reviewer', action: `Reopened after approval — round ${d.round}`, note: reason });
+    d.seals.rev = revSealOf(d);
+    const how = await persistReview(d, 'reopened');
+    if (!how) return;
+    doc = d; saveLocal(true); go(sameId(d.header.devId, myId()) ? 'dev' : 'report'); toast(`Reopened. It is with ${devWho(d)} again.`);
+  },
+  reasonOk() { const v = ($('#reasonIn')?.value || '').trim(); if (!v) return $('#reasonIn')?.focus(); const r = dlgResolve; dlgResolve = null; closeDlg(); r?.(v); },
+  async saveSnippet(el) {
+    const text = String(getPath(doc, el.dataset.p) || '').trim();
+    if (!text) return toast('Type the comment first, then save it.', true);
+    if (allSnippets().includes(text)) return toast('That comment is already saved.');
+    if (sharedOn()) { await teamOp(t => { if (t.snippets.some(s => s.text === text)) return false; t.snippets.push({ id: uid(), text, by: myId() }); }, 'Saved for the whole team.'); }
+    else { store.set('snippets', [...store.get('snippets', []), text]); toast('Saved in this browser.'); }
+    const dl = $('#dl-snip'); if (dl) dl.innerHTML = allSnippets().map(t => `<option value="${esc(t)}">`).join('');
+  },
+  async addSnippet() {
+    const text = ($('#snipNew')?.value || '').trim(); if (!text) return $('#snipNew')?.focus();
+    if (sharedOn()) await teamOp(t => { if (t.snippets.some(s => s.text === text)) return false; t.snippets.push({ id: uid(), text, by: myId() }); }, 'Saved.');
+    else store.set('snippets', [...store.get('snippets', []).filter(x => x !== text), text]);
+    render();
+  },
+  async delSnippet(el) {
+    const id = el.dataset.id;
+    if (sharedOn()) await teamOp(t => { t.snippets = t.snippets.filter(s => s.id !== id); });
+    else { const l = store.get('snippets', []); l.splice(+id.slice(1), 1); store.set('snippets', l); }
+    render();
+  },
+  async addMember() {
+    const id = ($('#tmId')?.value || '').trim().toUpperCase(), name = ($('#tmName')?.value || '').trim();
+    if (!id) return $('#tmId')?.focus();
+    await teamOp(t => { const m = t.members.find(x => sameId(x.id, id)); if (m) m.name = name || m.name; else t.members.push({ id, name }); }, memberOf(id) ? 'Updated.' : `Added ${name || id}.`);
+    render(); $('#tmId')?.focus();
+  },
+  async delMember(el) {
+    const m = memberOf(el.dataset.id);
+    if (!await confirmDlg('Remove from the team list?', `${who(m?.id, m?.name)} will no longer be suggested. Their reviews are not affected.`, 'Remove')) return;
+    await teamOp(t => { t.members = t.members.filter(x => !sameId(x.id, el.dataset.id)); t.owners = t.owners.filter(x => !sameId(x, el.dataset.id)); }, 'Removed.');
+    render();
+  },
+  async toggleOwner(el) {
+    const id = el.dataset.id;
+    await teamOp(t => { t.owners = t.owners.some(o => sameId(o, id)) ? t.owners.filter(o => !sameId(o, id)) : [...t.owners, id]; });
+    render();
+  },
+  async joinTeam() { await teamOp(t => { if (!t.members.some(m => sameId(m.id, myId()))) t.members.push({ id: myId(), name: myName() }); }, 'Added you to the team list.'); render(); },
+
   /* checklist setup */
   tplToggle(el, e) {
     if (e.target.closest('input,button')) return;
@@ -2874,6 +3336,7 @@ const A = {
   },
   async tplPublish() {
     if (!sharedOn()) return;
+    if (!isOwner(myId())) return toast(`Only checklist owners can publish (${ownerNames()}). Export your changes and send them to an owner.`, true);
     try {
       let cur = null;
       try { const f = await (await shared.handle.getFileHandle(CHECKLIST_FILE)).getFile(); cur = { mod: f.lastModified, raw: JSON.parse(await f.text()) }; }
@@ -2908,10 +3371,20 @@ document.addEventListener('input', e => {
   const el = e.target;
   if (el.dataset.f) { ui.filter = el.value; applyFilter(); return; }
   if (el.dataset.sq) { ui.sharedQ = el.value; const a = $('#sharedAll'); if (a) a.innerHTML = allReviewsHtml(); return; }
-  if (el.dataset.t) { if (el.dataset.t === '__systems') TPL.systems = el.value.split(',').map(x => x.trim()).filter(Boolean); else setPath(TPL, el.dataset.t, el.value); saveTpl(); if (el.tagName === 'TEXTAREA') autoGrow(el); return; }
+  if (el.id === 'idId') { const m = memberOf(el.value); if (m && $('#idName')) $('#idName').value = m.name; return; }
+  if (el.dataset.t) {
+    if (el.dataset.t === '__systems') TPL.systems = el.value.split(',').map(x => x.trim()).filter(Boolean);
+    else {
+      setPath(TPL, el.dataset.t, el.value);
+      if (!el.value && /\.(why|ex)$/.test(el.dataset.t)) { const ks = el.dataset.t.split('.'), k = ks.pop(); delete getPath(TPL, ks.join('.'))[k]; }
+    }
+    saveTpl(); if (el.tagName === 'TEXTAREA') autoGrow(el); return;
+  }
   const p = el.dataset.b;
   if (!p || !doc) return;
   setPath(doc, p, el.value);
+  if (NAME_OF[p]) { const m = memberOf(el.value); if (m) { setPath(doc, NAME_OF[p], m.name); const ne = document.querySelector(`[data-b="${NAME_OF[p]}"]`); if (ne) ne.value = m.name; } }
+  if (/^objects\.\d+\.name$/.test(p)) { const sb = $('#seenBox'); if (sb) sb.innerHTML = seenHtml(doc); }
   touched();
   if (el.dataset.rr) render();
 });
@@ -2956,6 +3429,9 @@ document.addEventListener('paste', e => {
 });
 document.addEventListener('mousedown', e => { if (e.target.classList?.contains('tags')) { e.preventDefault(); $('.tag-in', e.target)?.focus(); } });
 $('#fileIn').addEventListener('change', e => loadFile(e.target.files[0]));
+document.addEventListener('change', e => { const k = e.target.dataset?.ui; if (k) { ui[k] = e.target.value; render(); } });
+document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('span[role="button"][data-a]')) { e.preventDefault(); e.target.click(); } });
+addEventListener('pagehide', () => { releaseLock(); });
 $('#dlg').addEventListener('close', () => { if (dlgResolve) { const r = dlgResolve; dlgResolve = null; r(false); } });
 let dragDepth = 0;
 document.addEventListener('dragenter', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { dragDepth++; $('#dropov').classList.add('on'); } });
@@ -2978,7 +3454,7 @@ document.addEventListener('keydown', e => {
   if (lk === 'n') { e.preventDefault(); A.newReview(); }
   else if (lk === 'o') { e.preventDefault(); A.openFile(); }
   else if (k === '/') { e.preventDefault(); openPalette(); }
-  else if (/^[1-5]$/.test(k)) { const v = ['home', 'dev', 'rev', 'report', 'checklist'][+k - 1]; if (!DOC_VIEWS.includes(v) || (doc && tabsFor(doc)[v])) go(v); }
+  else if (/^[1-7]$/.test(k)) { const v = ['home', 'dev', 'rev', 'report', 'checklist', 'insights', 'team'][+k - 1]; if (!DOC_VIEWS.includes(v) || (doc && tabsFor(doc)[v])) go(v); }
 });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) sharedRefresh(true); });
 setInterval(() => { if (!document.hidden && view === 'home') sharedRefresh(true); }, 60000);
